@@ -23,6 +23,7 @@
             align-items: center;
             min-height: 100vh;
             background: #000;
+            overflow-x: hidden;
         }
 
         /* Branding styles */
@@ -33,12 +34,18 @@
             display: flex;
             align-items: center;
             z-index: 1001;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-container:hover {
+            transform: scale(1.05);
         }
 
         .brand-logo {
             width: 40px;
             height: 40px;
             margin-right: 10px;
+            filter: drop-shadow(0 0 8px rgba(24, 119, 242, 0.6));
         }
 
         .brand-name {
@@ -46,6 +53,7 @@
             font-size: 1.8em;
             font-weight: 700;
             text-shadow: 0 0 10px rgba(24, 119, 242, 0.5);
+            letter-spacing: -0.5px;
         }
 
         /* Section styles */
@@ -90,25 +98,29 @@
             background: #181818;
             z-index: 2;
             transition: 1.5s;
+            border-radius: 1px;
         }
 
         section span:hover {
             background: #1877f2;
             transition: 0s;
+            box-shadow: 0 0 10px #1877f2, 0 0 20px #1877f2;
         }
 
         /* Sign-in and sign-up form styles */
         .form-container {
             position: absolute;
             width: 400px;
-            background: #222;
+            background: rgba(34, 34, 34, 0.95);
             z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9), 0 0 20px rgba(24, 119, 242, 0.4);
+            backdrop-filter: blur(5px);
+            transition: all 0.5s ease;
         }
 
         .content {
@@ -125,6 +137,8 @@
             font-size: 2em;
             color: #1877f2;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(24, 119, 242, 0.3);
         }
 
         .form {
@@ -146,10 +160,16 @@
             border: none;
             outline: none;
             padding: 25px 10px 7.5px;
-            border-radius: 4px;
+            border-radius: 6px;
             color: #fff;
             font-weight: 500;
             font-size: 1em;
+            transition: all 0.3s;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .inputBox input:focus {
+            box-shadow: 0 0 5px rgba(24, 119, 242, 0.5);
         }
 
         .inputBox i {
@@ -180,6 +200,12 @@
             color: #fff;
             text-decoration: none;
             font-size: 0.9em;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .links a:hover {
+            color: #1877f2;
+            transform: translateY(-2px);
         }
 
         .links a:nth-child(2) {
@@ -188,17 +214,27 @@
         }
 
         .inputBox input[type="submit"] {
-            padding: 10px;
+            padding: 12px;
             background: #1877f2;
             color: #fff;
             font-weight: 600;
             font-size: 1.2em;
             letter-spacing: 0.05em;
             cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .inputBox input[type="submit"]:hover {
+            background: #0a5dc7;
+            box-shadow: 0 5px 15px rgba(24, 119, 242, 0.5);
+            transform: translateY(-2px);
         }
 
         input[type="submit"]:active {
             opacity: 0.8;
+            transform: translateY(0);
         }
 
         /* Signup form styles */
@@ -213,11 +249,17 @@
 
         .dob-container select {
             flex: 1;
-            padding: 8px;
+            padding: 10px;
             background: #333;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dob-container select:hover {
+            background: #3a3a3a;
         }
 
         .gender-container {
@@ -227,24 +269,36 @@
 
         .gender-option {
             flex: 1;
-            padding: 8px;
+            padding: 10px;
             background: #333;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             color: #fff;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .gender-option:hover {
+            background: #3a3a3a;
         }
 
         .policy-text {
             font-size: 0.75em;
             color: #aaa;
+            line-height: 1.4;
         }
 
         .policy-text a {
             color: #1877f2;
             text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .policy-text a:hover {
+            text-decoration: underline;
         }
 
         .signup-btn {
@@ -257,10 +311,85 @@
             background: #00a400;
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 12px 20px;
+            border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .signup-btn button:hover,
+        .signup-btn input[type="submit"]:hover {
+            background: #008f00;
+            box-shadow: 0 5px 15px rgba(0, 164, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Form transition animation */
+        @keyframes formFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-container.active {
+            animation: formFadeIn 0.5s forwards;
+        }
+
+        /* Social media icons */
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 1.2em;
+            transition: all 0.3s;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .facebook { background: #1877f2; }
+        .twitter { background: #1da1f2; }
+        .google { background: #db4437; }
+
+        /* OR divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #aaa;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #444;
+        }
+
+        .divider::before {
+            margin-right: 10px;
+        }
+
+        .divider::after {
+            margin-left: 10px;
         }
 
         /* Media queries for responsive design */
@@ -279,6 +408,7 @@
 
             .form-container {
                 width: 90%;
+                padding: 30px 20px;
             }
 
             .brand-container {
@@ -289,8 +419,47 @@
             .brand-name {
                 font-size: 1.5em;
             }
+
+            .content h2 {
+                font-size: 1.6em;
+            }
         }
+
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Password strength indicator */
+        .password-strength {
+            height: 5px;
+            width: 100%;
+            background: #333;
+            margin-top: 5px;
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background 0.3s;
+        }
+
+        .weak { background: #ff4747; width: 33%; }
+        .medium { background: #ffd600; width: 66%; }
+        .strong { background: #00c853; width: 100%; }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 <!-- SocialNest Branding -->
@@ -308,16 +477,16 @@
     </script>
 
     <!-- Login Form -->
-    <div id="login-container" class="form-container">
+    <div id="login-container" class="form-container active">
         <div class="content">
-            <h2>Sign In</h2>
+            <h2>Welcome Back</h2>
             <div class="form">
                 <div class="inputBox">
-                    <input type="text" required>
+                    <input type="text" id="login-email" required>
                     <i>Email or phone number</i>
                 </div>
                 <div class="inputBox">
-                    <input type="password" required>
+                    <input type="password" id="login-password" required>
                     <i>Password</i>
                 </div>
                 <div class="links">
@@ -327,6 +496,20 @@
                 <div class="inputBox">
                     <input type="submit" value="Login">
                 </div>
+
+                <div class="divider">OR</div>
+
+                <div class="social-icons">
+                    <a href="#" class="social-icon facebook" aria-label="Login with Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-icon twitter" aria-label="Login with Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-icon google" aria-label="Login with Google">
+                        <i class="fab fa-google"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -334,30 +517,33 @@
     <!-- Signup Form -->
     <div id="signup-container" class="form-container">
         <div class="content">
-            <h2>Create Account</h2>
+            <h2>Join SocialNest</h2>
             <div class="form">
                 <div class="inputBox">
-                    <input type="text" required>
+                    <input type="text" id="first-name" required>
                     <i>First Name</i>
                 </div>
                 <div class="inputBox">
-                    <input type="text" required>
+                    <input type="text" id="last-name" required>
                     <i>Last Name</i>
                 </div>
                 <div class="inputBox">
-                    <input type="text" required>
+                    <input type="text" id="signup-email" required>
                     <i>Email or Phone</i>
                 </div>
                 <div class="inputBox">
-                    <input type="password" required>
+                    <input type="password" id="signup-password" required>
                     <i>New Password</i>
+                    <div class="password-strength">
+                        <div class="strength-meter"></div>
+                    </div>
                 </div>
 
                 <p style="color: #aaa; font-size: 0.9em;">Date of Birth</p>
                 <div class="dob-container">
-                    <select id="day"></select>
-                    <select id="month"></select>
-                    <select id="year"></select>
+                    <select id="day" aria-label="Day"></select>
+                    <select id="month" aria-label="Month"></select>
+                    <select id="year" aria-label="Year"></select>
                 </div>
 
                 <p style="color: #aaa; font-size: 0.9em;">Gender</p>
@@ -369,6 +555,10 @@
                     <label class="gender-option">
                         <span>Male</span>
                         <input type="radio" name="gender" value="male">
+                    </label>
+                    <label class="gender-option">
+                        <span>Custom</span>
+                        <input type="radio" name="gender" value="custom">
                     </label>
                 </div>
 
@@ -392,7 +582,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Form toggle functionality
+        // Form toggle functionality with animations
         const loginContainer = document.getElementById('login-container');
         const signupContainer = document.getElementById('signup-container');
         const showSignupBtn = document.getElementById('show-signup-btn');
@@ -401,13 +591,21 @@
         showSignupBtn.addEventListener('click', function(e) {
             e.preventDefault();
             loginContainer.style.display = 'none';
+            loginContainer.classList.remove('active');
             signupContainer.style.display = 'flex';
+            setTimeout(() => {
+                signupContainer.classList.add('active');
+            }, 10);
         });
 
         showLoginBtn.addEventListener('click', function(e) {
             e.preventDefault();
             signupContainer.style.display = 'none';
+            signupContainer.classList.remove('active');
             loginContainer.style.display = 'flex';
+            setTimeout(() => {
+                loginContainer.classList.add('active');
+            }, 10);
         });
 
         // Populate date of birth selectors
@@ -443,7 +641,67 @@
             option.textContent = i;
             yearSelect.appendChild(option);
         }
+
+        // Password strength indicator
+        const passwordInput = document.getElementById('signup-password');
+        const strengthIndicator = document.querySelector('.password-strength');
+        const strengthMeter = document.querySelector('.strength-meter');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+
+            if (password.length === 0) {
+                strengthIndicator.style.display = 'none';
+                return;
+            }
+
+            strengthIndicator.style.display = 'block';
+
+            // Simple password strength logic
+            let strength = 0;
+
+            // Length check
+            if (password.length >= 8) strength += 1;
+
+            // Character variety checks
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            // Update strength meter
+            strengthMeter.className = 'strength-meter';
+            if (strength <= 1) {
+                strengthMeter.classList.add('weak');
+            } else if (strength <= 3) {
+                strengthMeter.classList.add('medium');
+            } else {
+                strengthMeter.classList.add('strong');
+            }
+        });
+
+        // Background animation enhancements
+        const spans = document.querySelectorAll('section span');
+
+        spans.forEach(span => {
+            // Random delay for background span animations
+            span.style.transitionDelay = `${Math.random() * 2}s`;
+
+            // Add subtle pulsing effect to some spans
+            if (Math.random() > 0.8) {
+                span.style.animation = `pulse ${2 + Math.random() * 3}s infinite alternate`;
+            }
+        });
     });
+
+    // Add pulse animation
+    document.head.insertAdjacentHTML('beforeend', `
+        <style>
+            @keyframes pulse {
+                0% { opacity: 0.3; }
+                100% { opacity: 0.8; }
+            }
+        </style>
+    `);
 </script>
 </body>
 </html>
