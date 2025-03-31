@@ -3,185 +3,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SocialNest</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>SocialNest - Connect with Friends</title>
     <style>
-        .socialnest-blue {
-            background-color: #1877f2;
+        /* Font import and global reset */
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+        /* Global reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
         }
-        .socialnest-green {
-            background-color: #00a400;
+
+        /* Body styling */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #000;
         }
-        .signup-container {
+
+        /* Branding styles */
+        .brand-container {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .brand-name {
+            color: #1877f2;
+            font-size: 1.8em;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(24, 119, 242, 0.5);
+        }
+
+        /* Section styles */
+        section {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+            flex-wrap: wrap;
+            overflow: hidden;
+        }
+
+        /* Animated gradient effect */
+        section::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(#000, #1877f2, #000);
+            animation: animate 5s linear infinite;
+        }
+
+        /* Animation keyframes */
+        @keyframes animate {
+            0% {
+                transform: translateY(-100%);
+            }
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        /* Styling for individual spans */
+        section span {
+            position: relative;
+            display: block;
+            width: calc(6.25vw - 2px);
+            height: calc(6.25vw - 2px);
+            background: #181818;
+            z-index: 2;
+            transition: 1.5s;
+        }
+
+        section span:hover {
+            background: #1877f2;
+            transition: 0s;
+        }
+
+        /* Sign-in and sign-up form styles */
+        .form-container {
+            position: absolute;
+            width: 400px;
+            background: #222;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
+        }
+
+        .content {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .content h2 {
+            font-size: 2em;
+            color: #1877f2;
+            text-transform: uppercase;
+        }
+
+        .form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .inputBox {
+            position: relative;
+            width: 100%;
+        }
+
+        .inputBox input {
+            position: relative;
+            width: 100%;
+            background: #333;
+            border: none;
+            outline: none;
+            padding: 25px 10px 7.5px;
+            border-radius: 4px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 1em;
+        }
+
+        .inputBox i {
+            position: absolute;
+            left: 0;
+            padding: 15px 10px;
+            font-style: normal;
+            color: #aaa;
+            transition: 0.5s;
+            pointer-events: none;
+        }
+
+        .inputBox input:focus ~ i,
+        .inputBox input:valid ~ i {
+            transform: translateY(-7.5px);
+            font-size: 0.8em;
+            color: #fff;
+        }
+
+        .links {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .links a:nth-child(2) {
+            color: #1877f2;
+            font-weight: 600;
+        }
+
+        .inputBox input[type="submit"] {
+            padding: 10px;
+            background: #1877f2;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.2em;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:active {
+            opacity: 0.8;
+        }
+
+        /* Signup form styles */
+        #signup-container {
             display: none;
+        }
+
+        .dob-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dob-container select {
+            flex: 1;
+            padding: 8px;
+            background: #333;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+        }
+
+        .gender-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .gender-option {
+            flex: 1;
+            padding: 8px;
+            background: #333;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .policy-text {
+            font-size: 0.75em;
+            color: #aaa;
+        }
+
+        .policy-text a {
+            color: #1877f2;
+            text-decoration: none;
+        }
+
+        .signup-btn {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .signup-btn button,
+        .signup-btn input[type="submit"] {
+            background: #00a400;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Media queries for responsive design */
+        @media (max-width: 900px) {
+            section span {
+                width: calc(10vw - 2px);
+                height: calc(10vw - 2px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            section span {
+                width: calc(20vw - 2px);
+                height: calc(20vw - 2px);
+            }
+
+            .form-container {
+                width: 90%;
+            }
+
+            .brand-container {
+                top: 20px;
+                left: 20px;
+            }
+
+            .brand-name {
+                font-size: 1.5em;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-<div class="container mx-auto py-8 px-4">
-    <div class="max-w-5xl mx-auto flex flex-col items-center md:flex-row md:items-start justify-between gap-8">
-        <!-- Left Content Section -->
-        <div class="md:max-w-md flex flex-col items-center md:items-start">
-            <img src="{{ asset('images/logo.jpg') }}" alt="SocialNest Logo" class="w-24 mb-2">
-            <h1 class="text-2xl md:text-3xl text-center md:text-left font-normal text-gray-800 mt-4">
-                SocialNest helps you connect and share with the people in your life.
-            </h1>
-        </div>
-
-        <!-- Login Form Container -->
-        <div id="login-container" class="login-container max-w-sm w-full">
-            <div class="bg-white p-4 rounded-lg shadow-md">
-                <form id="login-form">
-                    <input type="text" placeholder="Email address or phone number" class="w-full mb-3 px-4 py-3 border border-gray-300 rounded-md text-gray-700">
-                    <input type="password" placeholder="Password" class="w-full mb-3 px-4 py-3 border border-gray-300 rounded-md text-gray-700">
-                    <button type="submit" class="w-full socialnest-blue text-white py-2 px-4 rounded-md font-bold text-xl">Log in</button>
-                </form>
-                <div class="text-center mt-4 mb-4">
-                    <a href="#" class="text-blue-500 text-sm hover:underline">Forgotten password?</a>
-                </div>
-                <hr class="my-4">
-                <div class="text-center">
-                    <button id="show-signup-btn" class="socialnest-green text-white py-2 px-4 rounded-md font-bold text-lg">Create new account</button>
-                </div>
-            </div>
-            <div class="text-center mt-4">
-                <p class="text-sm"><a href="#" class="font-bold">Create a Page</a> for a celebrity, brand or business.</p>
-            </div>
-        </div>
-
-
-        <div id="signup-container" class="signup-container max-w-md w-full">
-            <div class="bg-white p-4 rounded-lg shadow-md">
-                <div class="text-center mb-4">
-                    <h2 class="text-2xl font-bold">Create a new account</h2>
-                    <p class="text-gray-600">It's quick and easy.</p>
-                </div>
-                <hr class="mb-4">
-                <form id="signup-form">
-                    <div class="flex gap-2 mb-3">
-                        <input type="text" placeholder="First name" class="w-1/2 px-3 py-2 border border-gray-300 rounded-md">
-                        <input type="text" placeholder="Surname" class="w-1/2 px-3 py-2 border border-gray-300 rounded-md">
-                    </div>
-                    <input type="text" placeholder="Mobile number or email address" class="w-full mb-3 px-3 py-2 border border-gray-300 rounded-md">
-                    <input type="password" placeholder="New password" class="w-full mb-3 px-3 py-2 border border-gray-300 rounded-md">
-
-                    <div class="mb-3">
-                        <label class="block text-gray-600 text-sm mb-1">Date of birth</label>
-                        <div class="flex gap-2">
-                            <select id="day" class="w-1/3 px-3 py-2 border border-gray-300 rounded-md"></select>
-                            <select id="month" class="w-1/3 px-3 py-2 border border-gray-300 rounded-md"></select>
-                            <select id="year" class="w-1/3 px-3 py-2 border border-gray-300 rounded-md"></select>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-gray-600 text-sm mb-1">Gender</label>
-                        <div class="flex gap-2">
-                            <label class="w-1/2 border border-gray-300 rounded-md px-3 py-2 flex items-center justify-between">
-                                <span>Female</span>
-                                <input type="radio" name="gender" value="female" class="ml-2">
-                            </label>
-                            <label class="w-1/2 border border-gray-300 rounded-md px-3 py-2 flex items-center justify-between">
-                                <span>Male</span>
-                                <input type="radio" name="gender" value="male" class="ml-2">
-                            </label>
-                        </div>
-                    </div>
-
-                    <p class="text-xs text-gray-500 mb-4">
-                        People who use our service may have uploaded your contact information to Facebook.
-                        <a href="#" class="text-blue-500">Learn more</a>
-                    </p>
-
-                    <p class="text-xs text-gray-500 mb-4">
-                        By clicking Sign Up, you agree to our
-                        <a href="#" class="text-blue-500">Terms</a>,
-                        <a href="#" class="text-blue-500">Privacy Policy</a> and
-                        <a href="#" class="text-blue-500">Cookies Policy</a>.
-                        You may receive SMS notifications from us and can opt out at any time.
-                    </p>
-
-                    <div class="text-center">
-                        <button type="submit" class="socialnest-green text-white py-2 px-12 rounded-md font-bold text-lg">Sign Up</button>
-                    </div>
-                </form>
-                <div class="text-center mt-4">
-                    <a href="#" id="show-login-btn" class="text-blue-500 hover:underline">Already have an account?</a>
-                </div>
-            </div>
-        </div>
-    </div>
+<body>
+<!-- SocialNest Branding -->
+<div class="brand-container">
+    <img src="logo.png" alt="SocialNest Logo" class="brand-logo">
+    <div class="brand-name">SocialNest</div>
 </div>
 
-<!-- Footer Section -->
-<footer class="mt-8 text-center">
-    <div class="max-w-5xl mx-auto px-4">
-        <div class="mb-2 flex flex-wrap justify-center gap-x-3 text-xs text-gray-600">
-            <a href="#">English (UK)</a>
-            <a href="#">Français (France)</a>
-            <a href="#">العربية</a>
-            <a href="#">ภาษาไทย</a>
-            <a href="#">Español (España)</a>
-            <a href="#">Italiano</a>
-            <a href="#">Deutsch</a>
-            <a href="#">Português (Brasil)</a>
-            <a href="#">हिन्दी</a>
-            <a href="#">中文(简体)</a>
-            <a href="#">日本語</a>
-            <button class="border border-gray-300 px-1">+</button>
-        </div>
+<section>
+    <!-- Creating 200 spans for background animation effect -->
+    <script>
+        for(let i = 0; i < 200; i++) {
+            document.write('<span></span>');
+        }
+    </script>
 
-        <hr class="my-2">
-
-
-
-        <div class="mt-4 text-xs text-gray-600">
-            <p>social nest © 2025</p>
+    <!-- Login Form -->
+    <div id="login-container" class="form-container">
+        <div class="content">
+            <h2>Sign In</h2>
+            <div class="form">
+                <div class="inputBox">
+                    <input type="text" required>
+                    <i>Email or phone number</i>
+                </div>
+                <div class="inputBox">
+                    <input type="password" required>
+                    <i>Password</i>
+                </div>
+                <div class="links">
+                    <a href="#">Forgot Password</a>
+                    <a href="#" id="show-signup-btn">Create Account</a>
+                </div>
+                <div class="inputBox">
+                    <input type="submit" value="Login">
+                </div>
+            </div>
         </div>
     </div>
-</footer>
+
+    <!-- Signup Form -->
+    <div id="signup-container" class="form-container">
+        <div class="content">
+            <h2>Create Account</h2>
+            <div class="form">
+                <div class="inputBox">
+                    <input type="text" required>
+                    <i>First Name</i>
+                </div>
+                <div class="inputBox">
+                    <input type="text" required>
+                    <i>Last Name</i>
+                </div>
+                <div class="inputBox">
+                    <input type="text" required>
+                    <i>Email or Phone</i>
+                </div>
+                <div class="inputBox">
+                    <input type="password" required>
+                    <i>New Password</i>
+                </div>
+
+                <p style="color: #aaa; font-size: 0.9em;">Date of Birth</p>
+                <div class="dob-container">
+                    <select id="day"></select>
+                    <select id="month"></select>
+                    <select id="year"></select>
+                </div>
+
+                <p style="color: #aaa; font-size: 0.9em;">Gender</p>
+                <div class="gender-container">
+                    <label class="gender-option">
+                        <span>Female</span>
+                        <input type="radio" name="gender" value="female">
+                    </label>
+                    <label class="gender-option">
+                        <span>Male</span>
+                        <input type="radio" name="gender" value="male">
+                    </label>
+                </div>
+
+                <p class="policy-text">
+                    By clicking Sign Up, you agree to our <a href="#">Terms</a>,
+                    <a href="#">Privacy Policy</a> and <a href="#">Cookies Policy</a>.
+                    You may receive SMS notifications from us and can opt out at any time.
+                </p>
+
+                <div class="signup-btn">
+                    <input type="submit" value="Sign Up">
+                </div>
+
+                <div class="links" style="justify-content: center; margin-top: 10px;">
+                    <a href="#" id="show-login-btn">Already have an account?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Form toggle functionality
         const loginContainer = document.getElementById('login-container');
         const signupContainer = document.getElementById('signup-container');
         const showSignupBtn = document.getElementById('show-signup-btn');
         const showLoginBtn = document.getElementById('show-login-btn');
 
-        // Switch to signup form
-        showSignupBtn.addEventListener('click', function() {
+        showSignupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             loginContainer.style.display = 'none';
-            signupContainer.style.display = 'block';
+            signupContainer.style.display = 'flex';
         });
 
-        // Switch to login form
-        showLoginBtn.addEventListener('click', function() {
+        showLoginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             signupContainer.style.display = 'none';
-            loginContainer.style.display = 'block';
+            loginContainer.style.display = 'flex';
         });
 
-        // Handle login form submission
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Add login form handling logic here
-            console.log('Login form submitted');
-        });
-
-        // Handle signup form submission
-        document.getElementById('signup-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Add signup form handling logic here
-            console.log('Signup form submitted');
-        });
-    });
-
-    //date :
-    document.addEventListener("DOMContentLoaded", function () {
+        // Populate date of birth selectors
         const daySelect = document.getElementById("day");
         const monthSelect = document.getElementById("month");
         const yearSelect = document.getElementById("year");
 
-        // Populate days (1 to 31)
+        // Populate days
         for (let i = 1; i <= 31; i++) {
             let option = document.createElement("option");
             option.value = i;
@@ -189,7 +423,7 @@
             daySelect.appendChild(option);
         }
 
-        // Populate months (January to December)
+        // Populate months
         const months = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
@@ -201,7 +435,7 @@
             monthSelect.appendChild(option);
         });
 
-        // Populate years (1900 to current year)
+        // Populate years
         const currentYear = new Date().getFullYear();
         for (let i = currentYear; i >= 1900; i--) {
             let option = document.createElement("option");
@@ -210,7 +444,6 @@
             yearSelect.appendChild(option);
         }
     });
-
 </script>
 </body>
 </html>

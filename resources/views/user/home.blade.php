@@ -9,7 +9,7 @@
         <div class="bg-white rounded-lg shadow-sm mb-4 overflow-hidden">
             <div class="p-4">
                 <div class="flex items-center mb-3">
-                    <img src="{{ asset('profile/profile.jpg') }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
+                    <img src="{{ asset('storage/profile/profile.jpg') }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
                     <div>
                         <div class="font-medium">Sarah Johnson</div>
                         <div class="text-xs text-gray-500">2 hours ago</div>
