@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return view('welcome');
 });
+Route::post('/register' , [App\Http\Controllers\AuthController::class , 'register'])->name('register');
 
 Route::get('/home', function () {
     return view('user.home');
@@ -92,4 +94,16 @@ Route::group(['middleware' => 'AuthAndVerified'] , function(){
 
 });
 
-Route::post('/register' , [App\Http\Controllers\AuthController::class , 'register']);
+
+Route::get('/test-email', function () {
+    try {
+        Mail::raw('This is a test email.', function ($message) {
+            $message->to('belghitihatim00@gmail.com')
+                ->subject('Test Email');
+        });
+
+        return 'Test email sent.';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});

@@ -518,7 +518,8 @@
     <div id="signup-container" class="form-container">
         <div class="content">
             <h2>Join SocialNest</h2>
-            <form action="/register" method="POST" class="form">
+            <form action="{{route('register')}}" method="POST" class="form">
+                @csrf
                 <div class="inputBox">
                     <input type="text" id="first-name" name="firstName" required>
                     <i>First Name</i>
