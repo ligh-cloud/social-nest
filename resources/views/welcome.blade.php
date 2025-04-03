@@ -521,7 +521,7 @@
             <form action="{{route('register')}}" method="POST" class="form">
                 @csrf
                 <div class="inputBox">
-                    <input type="text" id="first-name" name="firstName" required>
+                    <input type="text" id="first-name" name="name" required>
                     <i>First Name</i>
                 </div>
                 <div class="inputBox">

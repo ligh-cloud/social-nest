@@ -11,19 +11,22 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-
-
         $request->validate([
-            ' name'=>'required|max:100|string',
-            'email'=>'required|string|email|unique:users',
-            'password'=>'required|min:8|max:50'
+            'name' => 'required|max:100|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|min:8|max:50'
         ]);
+
+
+
+
 
         $user = User::create([
-            'name'=> $request->name,
-            'email'=>$request->email,
-            'password'=>Hash::make($request->password),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
+
         event(new Registered($user));
 
         $user->sendEmailVerificationNotification();
