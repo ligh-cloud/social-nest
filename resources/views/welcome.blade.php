@@ -480,13 +480,13 @@
     <div id="login-container" class="form-container active">
         <div class="content">
             <h2>Welcome Back</h2>
-            <div class="form">
+            <form action="/login" method="POST" class="form">
                 <div class="inputBox">
-                    <input type="text" id="login-email" required>
+                    <input type="text" id="login-email" name="email" required>
                     <i>Email or phone number</i>
                 </div>
                 <div class="inputBox">
-                    <input type="password" id="login-password" required>
+                    <input type="password" id="login-password" name="password" required>
                     <i>Password</i>
                 </div>
                 <div class="links">
@@ -510,7 +510,7 @@
                         <i class="fab fa-google"></i>
                     </a>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -518,21 +518,21 @@
     <div id="signup-container" class="form-container">
         <div class="content">
             <h2>Join SocialNest</h2>
-            <div class="form">
+            <form action="/register" method="POST" class="form">
                 <div class="inputBox">
-                    <input type="text" id="first-name" required>
+                    <input type="text" id="first-name" name="firstName" required>
                     <i>First Name</i>
                 </div>
                 <div class="inputBox">
-                    <input type="text" id="last-name" required>
+                    <input type="text" id="last-name" name="lastName" required>
                     <i>Last Name</i>
                 </div>
                 <div class="inputBox">
-                    <input type="text" id="signup-email" required>
+                    <input type="text" id="signup-email" name="email" required>
                     <i>Email or Phone</i>
                 </div>
                 <div class="inputBox">
-                    <input type="password" id="signup-password" required>
+                    <input type="password" id="signup-password" name="password" required>
                     <i>New Password</i>
                     <div class="password-strength">
                         <div class="strength-meter"></div>
@@ -541,9 +541,9 @@
 
                 <p style="color: #aaa; font-size: 0.9em;">Date of Birth</p>
                 <div class="dob-container">
-                    <select id="day" aria-label="Day"></select>
-                    <select id="month" aria-label="Month"></select>
-                    <select id="year" aria-label="Year"></select>
+                    <select id="day" name="day" aria-label="Day"></select>
+                    <select id="month" name="month" aria-label="Month"></select>
+                    <select id="year" name="year" aria-label="Year"></select>
                 </div>
 
                 <p style="color: #aaa; font-size: 0.9em;">Gender</p>
@@ -575,7 +575,7 @@
                 <div class="links" style="justify-content: center; margin-top: 10px;">
                     <a href="#" id="show-login-btn">Already have an account?</a>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </section>
@@ -704,4 +704,4 @@
     `);
 </script>
 </body>
-</html>
+</html>:
