@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
+use App\Http\Controllers\GoogleAuthController;
 
 //verify the email
 
@@ -16,7 +17,7 @@ Route::get('/email/verify', function () {
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
 
-    return redirect('/home');
+    return redirect('/home')->with('message', 'Verified successfully');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 
@@ -31,7 +32,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('login');
 Route::post('/register' , [AuthController::class , 'register'])->name('register');
 
 Route::get('/home', function () {
@@ -103,16 +104,12 @@ Route::group(['middleware' => 'AuthAndVerified'] , function(){
 
 });
 
+Route::get('password' , function (){
+    return 'this is password return';
+})->name('password.request');
 
-Route::get('/test-email', function () {
-    try {
-        Mail::raw('This is a test email.', function ($message) {
-            $message->to('belghitihatim00@gmail.com')
-                ->subject('Test Email');
-        });
+// Route to redirect to Google's OAuth page
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
 
-        return 'Test email sent.';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
+// Route to handle the callback from Google
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');

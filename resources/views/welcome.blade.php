@@ -262,28 +262,6 @@
             background: #3a3a3a;
         }
 
-        .gender-container {
-            display: flex;
-            gap: 8px;
-        }
-
-        .gender-option {
-            flex: 1;
-            padding: 10px;
-            background: #333;
-            border: none;
-            border-radius: 6px;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .gender-option:hover {
-            background: #3a3a3a;
-        }
 
         .policy-text {
             font-size: 0.75em;
@@ -462,6 +440,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+<div id="alert-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 80%; max-width: 400px; display: none;">
+    <div id="alert-box" class="alert-box" style="padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; animation: slideDown 0.3s ease-out forwards;">
+        <div style="display: flex; align-items: center;">
+            <i id="alert-icon" class="fas fa-check-circle" style="margin-right: 10px; font-size: 1.2em;"></i>
+            <span id="alert-message">Message goes here</span>
+        </div>
+        <button onclick="hideAlert()" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 1.1em;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Add the animations to your head or CSS file -->
+<style>
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-20px); }
+    }
+</style>
+
+<!-- Hidden input fields for Laravel flash messages -->
+@if (session('message'))
+    <input type="hidden" id="session-message" value="{{ session('message') }}">
+@endif
+
+@if (session('error'))
+    <input type="hidden" id="session-error" value="{{ session('error') }}">
+@endif
 <!-- SocialNest Branding -->
 <div class="brand-container">
     <img src="logo.png" alt="SocialNest Logo" class="brand-logo">
@@ -506,7 +516,7 @@
                     <a href="#" class="social-icon twitter" aria-label="Login with Twitter">
                         <i class="fab fa-twitter"></i>
                     </a>
-                    <a href="#" class="social-icon google" aria-label="Login with Google">
+                    <a href="{{route('auth.google.redirect')}}" class="social-icon google" aria-label="Login with Google">
                         <i class="fab fa-google"></i>
                     </a>
                 </div>
@@ -547,21 +557,7 @@
                     <select id="year" name="year" aria-label="Year"></select>
                 </div>
 
-                <p style="color: #aaa; font-size: 0.9em;">Gender</p>
-                <div class="gender-container">
-                    <label class="gender-option">
-                        <span>Female</span>
-                        <input type="radio" name="gender" value="female">
-                    </label>
-                    <label class="gender-option">
-                        <span>Male</span>
-                        <input type="radio" name="gender" value="male">
-                    </label>
-                    <label class="gender-option">
-                        <span>Custom</span>
-                        <input type="radio" name="gender" value="custom">
-                    </label>
-                </div>
+
 
                 <p class="policy-text">
                     By clicking Sign Up, you agree to our <a href="#">Terms</a>,
@@ -703,6 +699,95 @@
             }
         </style>
     `);
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to get URL parameters (for query string flash messages)
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Function to show alert
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertBox = document.getElementById('alert-box');
+            const alertIcon = document.getElementById('alert-icon');
+            const alertMessage = document.getElementById('alert-message');
+
+            // Set message
+            alertMessage.textContent = message;
+
+            // Set style based on type
+            if (type === 'success') {
+                alertBox.style.backgroundColor = '#4CAF50';
+                alertBox.style.color = 'white';
+                alertIcon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                alertBox.style.backgroundColor = '#F44336';
+                alertBox.style.color = 'white';
+                alertIcon.className = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                alertBox.style.backgroundColor = '#FF9800';
+                alertBox.style.color = 'white';
+                alertIcon.className = 'fas fa-exclamation-triangle';
+            } else if (type === 'info') {
+                alertBox.style.backgroundColor = '#2196F3';
+                alertBox.style.color = 'white';
+                alertIcon.className = 'fas fa-info-circle';
+            }
+
+            // Show alert
+            alertContainer.style.display = 'block';
+
+            // Auto hide after 5 seconds
+            setTimeout(hideAlert, 5000);
+        }
+
+        function hideAlert() {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.style.animation = 'slideUp 0.3s ease-out forwards';
+            setTimeout(() => {
+                alertContainer.style.display = 'none';
+                alertContainer.style.animation = '';
+            }, 300);
+        }
+
+        // Check for Laravel flash messages in the page
+        // This works with Laravel's with('message') and with('error') redirects
+
+        // Option 1: Check for message in session (Laravel stores flash data in HTML)
+        const sessionMessage = document.getElementById('session-message');
+        const sessionError = document.getElementById('session-error');
+
+        if (sessionMessage && sessionMessage.value) {
+            showAlert(sessionMessage.value, 'success');
+        }
+
+        if (sessionError && sessionError.value) {
+            showAlert(sessionError.value, 'error');
+        }
+
+        // Option 2: Check for Laravel flash message passed as JSON
+        // This works with Laravel's response()->json(['message' => 'Success'])
+        if (typeof laravelFlashMessage !== 'undefined' && laravelFlashMessage) {
+            showAlert(laravelFlashMessage, 'success');
+        }
+
+        if (typeof laravelFlashError !== 'undefined' && laravelFlashError) {
+            showAlert(laravelFlashError, 'error');
+        }
+
+        // Option 3: Check for message in URL
+        // For redirect()->with('message', 'text')->withInput() cases
+        const urlMessage = getUrlParam('message');
+        if (urlMessage) {
+            showAlert(decodeURIComponent(urlMessage), 'success');
+        }
+
+        const urlError = getUrlParam('error');
+        if (urlError) {
+            showAlert(decodeURIComponent(urlError), 'error');
+        }
+    });
 </script>
 </body>
 </html>:
