@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Container\Attributes\Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,12 +16,11 @@ class AuthAndVerified
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::check()){
-            if(Auth::user()->hasVerifiedEmail){
+        if (Auth::check()) {
+            if (Auth::user()->hasVerifiedEmail()) {
                 return $next($request);
             }
         }
         return redirect()->route('verification.notice');
-
     }
 }
