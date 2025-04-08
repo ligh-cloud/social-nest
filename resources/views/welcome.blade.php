@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SocialNest - Connect with Friends</title>
+    <link rel="icon" href="{{ asset('Images/Logo.png') }}" type="image/png">
+
     <style>
         /* Font import and global reset */
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
@@ -464,7 +466,7 @@
 <body>
 <!-- SocialNest Branding -->
 <div class="brand-container">
-    <img src="logo.png" alt="SocialNest Logo" class="brand-logo">
+    <img src="{{ asset('image/logo1.png') }}" alt="SocialNest Logo" class="brand-logo">
     <div class="brand-name">SocialNest</div>
 </div>
 
