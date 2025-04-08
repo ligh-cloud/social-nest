@@ -366,7 +366,7 @@
         }
 
         .facebook { background: #1877f2; }
-        .twitter { background: #1da1f2; }
+
         .google { background: #db4437; }
 
         /* OR divider */
@@ -464,11 +464,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+<div id="alert-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 80%; max-width: 400px; display: none;">
+    <div id="alert-box" class="alert-box" style="padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; animation: slideDown 0.3s ease-out forwards;">
+        <div style="display: flex; align-items: center;">
+            <i id="alert-icon" class="fas fa-check-circle" style="margin-right: 10px; font-size: 1.2em;"></i>
+            <span id="alert-message">Message goes here</span>
+        </div>
+        <button onclick="hideAlert()" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 1.1em;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
 <!-- SocialNest Branding -->
 <div class="brand-container">
     <img src="{{ asset('image/logo1.png') }}" alt="SocialNest Logo" class="brand-logo">
     <div class="brand-name">SocialNest</div>
 </div>
+@if (session('message'))
+    <input type="hidden" id="session-message" value="{{ session('message') }}">
+@endif
+
+@if (session('error'))
+    <input type="hidden" id="session-error" value="{{ session('error') }}">
+@endif
 
 <section>
     <!-- Creating 200 spans for background animation effect -->
@@ -477,6 +495,7 @@
             document.write('<span></span>');
         }
     </script>
+
 
     <!-- Login Form -->
     <div id="login-container" class="form-container active">
@@ -503,13 +522,11 @@
                 <div class="divider">OR</div>
 
                 <div class="social-icons">
-                    <a href="#" class="social-icon facebook" aria-label="Login with Facebook">
+                    <a href="{{ route('login.facebook') }}" class="social-icon facebook" aria-label="Login with Facebook">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="#" class="social-icon twitter" aria-label="Login with Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="social-icon google" aria-label="Login with Google">
+
+                    <a href="{{ route('auth.google.redirect') }}" class="social-icon google" aria-label="Login with Google">
                         <i class="fab fa-google"></i>
                     </a>
                 </div>
@@ -681,6 +698,63 @@
                 span.style.animation = `pulse ${2 + Math.random() * 3}s infinite alternate`;
             }
         });
+
+        // Function to show alert
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertBox = document.getElementById('alert-box');
+            const alertIcon = document.getElementById('alert-icon');
+            const alertMessage = document.getElementById('alert-message');
+
+            // Set message
+            alertMessage.textContent = message;
+
+            // Set style based on type
+            if (type === 'success') {
+                alertBox.style.backgroundColor = '#4CAF50';
+                alertBox.style.color = 'white';
+                alertIcon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                alertBox.style.backgroundColor = '#F44336';
+                alertBox.style.color = 'white';
+                alertIcon.className = 'fas fa-exclamation-circle';
+            } else if (type === 'warning') {
+                alertBox.style.backgroundColor = '#FF9800';
+                alertBox.style.color = 'white';
+                alertIcon.className = 'fas fa-exclamation-triangle';
+            } else if (type === 'info') {
+                alertBox.style.backgroundColor = '#2196F3';
+                alertBox.style.color = 'white';
+                alertIcon.className = 'fas fa-info-circle';
+            }
+
+            // Show alert
+            alertContainer.style.display = 'block';
+
+            // Auto hide after 5 seconds
+            setTimeout(hideAlert, 5000);
+        }
+
+        function hideAlert() {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.style.animation = 'slideUp 0.3s ease-out forwards';
+            setTimeout(() => {
+                alertContainer.style.display = 'none';
+                alertContainer.style.animation = '';
+            }, 300);
+        }
+
+        // Check for Laravel flash messages in the page
+        const sessionMessage = document.getElementById('session-message');
+        const sessionError = document.getElementById('session-error');
+
+        if (sessionMessage && sessionMessage.value) {
+            showAlert(sessionMessage.value, 'success');
+        }
+
+        if (sessionError && sessionError.value) {
+            showAlert(sessionError.value, 'error');
+        }
     });
 
     // Add pulse animation
@@ -689,6 +763,10 @@
             @keyframes pulse {
                 0% { opacity: 0.3; }
                 100% { opacity: 0.8; }
+            }
+            @keyframes slideUp {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-20px); }
             }
         </style>
     `);
