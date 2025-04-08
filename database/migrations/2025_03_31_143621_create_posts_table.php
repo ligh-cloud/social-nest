@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('image')->nullable();
             $table->text('content')->nullable();
-            $table->unsignedInteger('likes_count')->default(0);
-            $table->unsignedInteger('comments_count')->default(0);
-            $table->unsignedInteger('shares_count')->default(0);
+
             $table->enum('privacy', ['public', 'friends', 'private'])->default('public');
             $table->timestamps();
         });
