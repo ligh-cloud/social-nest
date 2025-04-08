@@ -1,7 +1,7 @@
-<?php
-@extends('layouts.app')
 
-@section('content')
+
+
+
     <div class="container mx-auto max-w-lg p-6 bg-white shadow-md rounded-lg mt-10">
         <h2 class="text-2xl font-bold text-center mb-4">Verify Your Email Address</h2>
 
@@ -19,11 +19,11 @@
             If you did not receive the email, click the button below to request another verification link.
         </p>
 
-        <form method="POST" action="{{ route('verification.resend') }}" class="text-center">
+        <form method="POST" action="{{ route('verification.send') }}" class="text-center">
             @csrf
             <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
                 Resend Verification Email
             </button>
         </form>
     </div>
-@endsection
+

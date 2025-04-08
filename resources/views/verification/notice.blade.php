@@ -1,5 +1,5 @@
 <?php
-@extends('layouts.app')
+
 
 @section('content')
     <div class="container mx-auto max-w-lg p-6 bg-white shadow-md rounded-lg mt-10">

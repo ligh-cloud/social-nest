@@ -12,6 +12,7 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+
         $request->validate([
             'name' => 'required|max:100|string',
             'email' => 'required|string|email|unique:users',
@@ -30,11 +31,13 @@ class AuthController extends Controller
 
         event(new Registered($user));
 
-        $user->sendEmailVerificationNotification();
-        return back()->with('success' , 'email verification send ');
+
+        return redirect()->route('verification.notice')->with('success', 'Verification email sent.');
+
     }
     public function login(Request $request)
     {
+
         $request->validate([
             'email'=>'required',
             'password'=>'required'

@@ -12,12 +12,11 @@ use Illuminate\Support\Facades\Auth;
 // Route to display the email verification notice
 Route::get('/email/verify', function () {
     return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
+})->name('verification.notice');
 
-// Route to handle the email verification link click
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    return redirect('/home')->with('message', 'Email verified successfully.');
+    return redirect('/home')->with('success', 'Email verified successfully.');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 // Route to resend the email verification link
@@ -32,6 +31,8 @@ Route::post('/email/verification-notification', function (Request $request) {
 Route::get('/', function () {
     return view('welcome');
 })->name('login');
+
+Route::post('/login' , [AuthController::class , 'login'])->name('auth');
 
 // Route to handle user registration
 Route::post('/register', [AuthController::class, 'register'])->name('register');
