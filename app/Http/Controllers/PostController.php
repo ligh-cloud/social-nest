@@ -11,7 +11,7 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::latest()->get();
-        return view('posts.index', compact('posts'));
+        return view('user.home', compact('posts'));
     }
 
     public function create()
@@ -34,7 +34,7 @@ class PostController extends Controller
 
         Post::create([
             'user_id' => Auth::id(),
-            'content' => $request->content,
+            'text' => $request->text,
             'image' => $imagePath,
             'privacy' => $request->privacy,
         ]);
@@ -66,7 +66,7 @@ class PostController extends Controller
         }
 
         $post->update([
-            'content' => $request->content,
+            'content' => $request->text,
             'privacy' => $request->privacy,
         ]);
 

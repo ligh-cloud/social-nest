@@ -40,10 +40,9 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 // Routes that require authentication and email verification
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Route to the home page
-    Route::get('/home', function () {
-        return view('user.home');
-    })->name('home');
+
+    Route::get('/home', [\App\Http\Controllers\PostController::class, 'index']
+    )->name('home');
 
     // Additional authenticated routes
     Route::get('/watch', function () {
@@ -78,7 +77,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('friends.requests');
 
     // Route to the admin home page
-    
+
 
     // Route to user settings
     Route::get('user/settings', function () {
