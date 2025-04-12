@@ -4,6 +4,7 @@
 
 @section('content')
     <!-- Feed Content -->
+
     <div class="mt-4" id="post-container">
         @if(count($posts) > 0)
             @foreach($posts as $post)

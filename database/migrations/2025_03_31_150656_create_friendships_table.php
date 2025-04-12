@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('sender_id')->constrained('users')->onDelete('CASCADE');
             $table->foreignId('receiver_id')->constrained('users')->onDelete('CASCADE');
-            $table->enum('status' , ['accepted , refused , pending']);
+            $table->enum('status', ['accepted', 'refused', 'pending'])->default('pending');
             $table->unique(['sender_id' , 'receiver_id']);
         });
     }

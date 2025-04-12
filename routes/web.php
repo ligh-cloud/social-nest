@@ -78,9 +78,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('friends.requests');
 
     // Route to the admin home page
-    Route::get('admin/home', function () {
-        return view('admin.admin');
-    })->name('admin.home');
+    
 
     // Route to user settings
     Route::get('user/settings', function () {
@@ -129,3 +127,6 @@ Route::get('login/facebook/callback', [FacebookController::class, 'handleFaceboo
 Route::get('/saved' , function (){
     return "this is the saved page";
 })->name("saved");
+Route::get('admin/home', function () {
+    return view('admin.admin');
+})->name('admin.home');

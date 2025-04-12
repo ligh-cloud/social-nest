@@ -199,25 +199,7 @@
         </div>
 
         <!-- Create Post Section -->
-        <div class="p-4">
-            <div class="flex items-center mb-4">
-                <img src="{{ asset('storage/profile/profile.jpg') }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
-                <div class="bg-gray-100 rounded-full flex-grow">
-                    <input type="text" placeholder="Ask a question or start a post" class="post-input w-full py-2 px-4 bg-transparent rounded-full">
-                </div>
-            </div>
-            <div class="flex flex-wrap justify-between">
-                <button class="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition mb-2 sm:mb-0">
-                    <i class="fas fa-image mr-2"></i>
-                    <span>Add media</span>
-                </button>
-                <div class="flex items-center">
-                    <button class="flex items-center p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">
-                        <span>Add Category</span>
-                        <i class="fas fa-chevron-down ml-2"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+
+
     </div>
 </div>
