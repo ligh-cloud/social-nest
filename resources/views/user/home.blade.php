@@ -54,8 +54,11 @@
     </form>
 
     <div class="mt-4" id="post-container">
+
+
         @if(count($posts) > 0)
             @foreach($posts as $post)
+                @if($post->privacy == 'public')
                 <div class="bg-white rounded-lg shadow-sm mb-4 overflow-hidden">
                     <div class="p-4">
                         <div class="flex items-center mb-3">
@@ -69,7 +72,7 @@
 
                         @if($post->image)
                             <div class="w-full h-64 rounded-lg mb-3 overflow-hidden">
-                                <img src="{{ asset('storage/posts/' . $post->image) }}" alt="Post Image" class="w-full h-full object-cover">
+                                <img src="{{ asset('storage/' . $post->image) }}" alt="Post Image" class="w-full h-full object-cover">
                             </div>
                         @endif
 
@@ -89,7 +92,9 @@
                         </div>
                     </div>
                 </div>
+                @endif
             @endforeach
+
         @else
             <div class="bg-white rounded-lg shadow-sm p-6 text-center">
                 <p class="text-gray-500">No posts available. Follow more users or create a post!</p>
