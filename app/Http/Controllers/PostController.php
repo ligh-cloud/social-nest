@@ -10,8 +10,9 @@ class PostController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
         $posts = Post::latest()->get();
-        return view('user.home', compact('posts'));
+        return view('user.home', compact('posts' , 'user'));
     }
 
     public function create()
@@ -21,15 +22,18 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
+
         $request->validate([
-            'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png',
-            'privacy' => 'required|in:public,friends,private',
+            'text' => 'nullable|string',
+            'image' => 'nullable|image',
+
         ]);
+
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('posts', 'public');
+            $imagePath = $request->file('media');
+
         }
 
         Post::create([
@@ -39,7 +43,7 @@ class PostController extends Controller
             'privacy' => $request->privacy,
         ]);
 
-        return redirect()->route('posts.index')->with('success', 'Post created.');
+        return redirect()->back()->with('success', 'Post created.');
     }
 
     public function show(Post $post)

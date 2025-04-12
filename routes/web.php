@@ -44,6 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', [\App\Http\Controllers\PostController::class, 'index']
     )->name('home');
 
+    Route::post('/posts' , [\App\Http\Controllers\PostController::class , 'store'])->name('posts.store');
+
     // Additional authenticated routes
     Route::get('/watch', function () {
         return 'This is the watch page.';
