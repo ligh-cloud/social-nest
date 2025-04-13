@@ -86,7 +86,7 @@ class FriendshipController extends Controller
             ->take(10)
             ->get();
 
-        return view('user.partials.friend_requests', compact('friendRequests'))->render();
+        return view('partials.friend_requests', compact('friendRequests'))->render();
     }
 
     /**
