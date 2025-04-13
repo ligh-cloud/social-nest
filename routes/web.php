@@ -32,6 +32,8 @@ Route::get('/', function () {
     return view('welcome');
 })->name('login');
 
+
+
 Route::post('/login' , [AuthController::class , 'login'])->name('auth');
 
 // Route to handle user registration
@@ -74,9 +76,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('logout');
 
     // Route to view friend requests
-    Route::get('friends/requests', function () {
-        return view('user.friend_request');
-    })->name('friends.requests');
+    Route::get('friends/requests', [\App\Http\Controllers\FriendshipController::class, 'index']
+    )->name('friends.requests');
 
     // Route to the admin home page
 

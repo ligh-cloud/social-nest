@@ -19,7 +19,7 @@
 
             <!-- User Profile -->
             <div class="mb-8 flex items-center">
-                <img src="{{ asset('storage/profile/profile.jpg') }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
+                <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
                 <div class="text-gray-700 text-lg font-medium">{{ auth()->user()->name ?? 'John Doe' }}</div>
             </div>
 
@@ -39,7 +39,7 @@
                         </a>
                     </li>
                     <li class="mb-1">
-                        <a href="{{ route('friends') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg">
+                        <a href="{{ route('friends.requests') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg">
                             <i class="fas fa-user-friends text-blue-400 mr-3 text-xl"></i>
                             <span>Friends</span>
                         </a>
@@ -105,9 +105,9 @@
                 </button>
             </div>
 
-            <!-- User Profile -->
+
             <div class="mb-6 flex items-center">
-                <img src="{{ asset('storage/profile/profile.jpg') }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
+                <img src="{{ asset('storage,/' . $user->profile_photo_path) }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
                 <div class="text-gray-700 text-lg font-medium">{{ auth()->user()->name ?? 'John Doe' }}</div>
             </div>
 

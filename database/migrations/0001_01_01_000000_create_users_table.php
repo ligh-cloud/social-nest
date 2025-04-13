@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('google_id')->nullable();
             $table->string('facebook_id')->nullable();
             $table->string('password');
+            $table->string('profile_photo_path')->default('images/default.jpeg');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -10,7 +10,7 @@
         <div class="p-4">
             <!-- User Info and Text Input -->
             <div class="flex items-center mb-4">
-                <img src="{{ asset('storage/profile/profile.jpg') }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
+                <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
 
                 <div class="bg-gray-100 rounded-full flex-grow">
                     <input
@@ -62,7 +62,7 @@
                 <div class="bg-white rounded-lg shadow-sm mb-4 overflow-hidden">
                     <div class="p-4">
                         <div class="flex items-center mb-3">
-                            <img src="{{ $user->image ? asset('storage/profile/' . $post->user->profile_image) : asset('images/default-avatar.jpg') }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
+                            <img src="{{ asset($user->profile_photo_path . 'images/default-avatar.jpg') }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
                             <div>
                                 <div class="font-medium">{{ $user->name }}</div>
                                 <div class="text-xs text-gray-500">{{ $post->created_at->diffForHumans() }}</div>
@@ -72,7 +72,7 @@
 
                         @if($post->image)
                             <div class="w-full h-64 rounded-lg mb-3 overflow-hidden">
-                                <img src="{{ asset('storage/' . $post->image) }}" alt="Post Image" class="w-full h-full object-cover">
+                                <img src="{{ asset('storage/' . $post->image) }}=" alt="Post Image" class="w-full h-full object-cover">
                             </div>
                         @endif
 

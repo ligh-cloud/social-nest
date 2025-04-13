@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Friendship;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FriendshipController extends Controller
 {
@@ -12,7 +13,12 @@ class FriendshipController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $friends = Friendship::where(function ($query) use ($user) {
+            $query->where('sender_id' , $user)
+                ->orWhere('receiver_id' , $user);
+        })->get();
+        return redirect()->view('friendships.index', compact('friends'));
     }
 
     /**
