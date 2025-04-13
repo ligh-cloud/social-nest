@@ -39,7 +39,7 @@
                         </a>
                     </li>
                     <li class="mb-1">
-                        <a href="{{ route('friends.requests') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg">
+                        <a href="{{ route('friends') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg">
                             <i class="fas fa-user-friends text-blue-400 mr-3 text-xl"></i>
                             <span>Friends</span>
                         </a>

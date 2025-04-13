@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
@@ -75,9 +76,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect('/')->with('message', 'Logged out successfully.');
     })->name('logout');
 
-    // Route to view friend requests
-    Route::get('friends/requests', [\App\Http\Controllers\FriendshipController::class, 'index']
-    )->name('friends.requests');
+    // every friends routes
+    Route::get('/friends', [\App\Http\Controllers\FriendshipController::class, 'index']
+    )->name('friends');
+    
+    Route::get('/friends/requests', [FriendshipController::class, 'getRequests'])->name('friends.requests');
+    Route::post('/friends', [FriendshipController::class, 'store'])->name('friends.store');
+    Route::put('/friends/{friendship}', [FriendshipController::class, 'update'])->name('friends.update');
+    Route::delete('/friends/{friendship}', [FriendshipController::class, 'destroy'])->name('friends.destroy');
+
+
 
     // Route to the admin home page
 
@@ -88,9 +96,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('user.settings');
 
     // Route to view friends list
-    Route::get('/friends', function () {
-        return view('user.friends');
-    })->name('friends');
+
 
     // Route to view notifications
     Route::get('/notifications', function () {
@@ -132,3 +138,5 @@ Route::get('/saved' , function (){
 Route::get('admin/home', function () {
     return view('admin.admin');
 })->name('admin.home');
+
+
