@@ -65,27 +65,30 @@ class FriendshipController extends Controller
     /**
      * Display the specified resource.
      */
-    public function showLatest(Friendship $friendship)
+    public function showLatest()
     {
         $user = Auth::user();
-        $friendRequest = Friendship::where('receiver_id' , $user->id)
+        $friendRequests = Friendship::where('receiver_id' , $user->id)
+
             ->latest()
             ->take(2)
             ->with('sender')
             ->get();
+        return view('user.friends', compact('friendRequests'));
     }
 
-    public function getRequests()
+    public function getRequests($status)
     {
         $user = Auth::user();
 
-        $friendRequests = Friendship::where('receiver_id', $user->id)
-            ->where('status', false)
-            ->with('sender') // eager load sender
+        $query = Friendship::where('receiver_id', $user->id)
+
+            ->Where('status' , $status)
+            ->with('sender')
             ->latest()
-            ->take(10)
             ->get();
 
+        $friendRequests = $query->get();
         return view('partials.friend_requests', compact('friendRequests'))->render();
     }
 

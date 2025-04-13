@@ -190,9 +190,9 @@
                     <i class="fas fa-home text-xl"></i>
                 </button>
                 <button class="py-3 px-6 flex items-center justify-center text-gray-500">
-                    <i class="fas fa-user-friends text-xl"></i>
+                    <i class="fas fa-user-friends text-xl"></i><a href="{{ route('friends.show', ['status' => 'pending']) }}"></a>
                 </button>
-                <button class="py-3 px-6 flex items-center justify-center text-gray-500">
+                <button  class="py-3 px-6 flex items-center justify-center text-gray-500">
                     <i class="fas fa-bell text-xl"></i>
                 </button>
             </div>
