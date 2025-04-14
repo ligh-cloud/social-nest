@@ -6,15 +6,21 @@
                      class="w-12 h-12 rounded-full mr-3" alt="User">
                 <div>
                     <div class="font-medium">{{ $request->sender->name }}</div>
+                    @if($request->status !== 'accepted')
                     <div class="text-xs text-gray-500">Friend Request</div>
+                    @else
+                        <div class="text-xs text-gray-500">Friend </div>
+                    @endif
                 </div>
             </div>
+            @if($request->status !== 'accepted')
             <div class="flex space-x-2 w-full md:w-auto">
                 <button class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium accept-request"
                         data-id="{{ $request->id }}">Accept</button>
                 <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium decline-request"
                         data-id="{{ $request->id }}">Decline</button>
             </div>
+            @endif
         </div>
     @endforeach
 @else

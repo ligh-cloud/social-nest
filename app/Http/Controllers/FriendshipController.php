@@ -140,4 +140,36 @@ class FriendshipController extends Controller
 
     return back()->with('success', 'Friendship removed or request refused.');
 }
+
+
+    public function showSuggestions()
+    {
+        $userId = Auth::id();
+
+        // Get all friend IDs (both sender and receiver) for the current user
+        $friendIds = Friendship::where(function ($query) use ($userId) {
+            $query->where('sender_id', $userId)
+                ->orWhere('receiver_id', $userId);
+        })->pluck('sender_id')
+            ->merge(
+                Friendship::where(function ($query) use ($userId) {
+                    $query->where('sender_id', $userId)
+                        ->orWhere('receiver_id', $userId);
+                })->pluck('receiver_id')
+            )->unique()->toArray();
+
+        $friendIds = Friendship::where(function ($query) use ($userId) {
+            $query->where('sender_id', $userId)
+                ->orWhere('receiver_id', $userId)
+                ->get();
+        });
+
+        // Add self to the exclusion list
+        $friendIds[] = $userId;
+
+        // Get users who are not in friend list
+        $suggestedUsers = User::whereNotIn('id', $friendIds)->get();
+
+        return view('partials.friend_suggestions', compact('suggestedUsers'))->render();
+    }
 }
