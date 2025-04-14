@@ -15,11 +15,11 @@
             </div>
 
             <div class="flex space-x-2 overflow-x-auto pb-2" id="filter-buttons">
-                <button class="filter-btn px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium whitespace-nowrap">All Friends</button>
-                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Friend request</button>
-                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Birthdays</button>
-                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Work</button>
-                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">College</button>
+                <button class="filter-btn px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium whitespace-nowrap" data-status="accepted">All Friends</button>
+                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap" data-status="pending">Friend request</button>
+{{--                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap" data-status="birthdays">Birthdays</button>--}}
+{{--                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap" data-status="work">Work</button>--}}
+
             </div>
         </div>
 
@@ -60,26 +60,30 @@
 
 @push('scripts')
     <script>
-        //adding the color switch for each button
-        document.querySelectorAll('.filter-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.classList.remove('bg-blue-500', 'text-white');
-                    btn.classList.add('bg-gray-200', 'text-gray-700');
-                });
-
-                button.classList.remove('bg-gray-200', 'text-gray-700');
-                button.classList.add('bg-blue-500', 'text-white');
-            });
-        });
-
-
-
         document.addEventListener('DOMContentLoaded', function () {
-            loadFriendRequests();
+            // Load default friend requests (pending)
+            loadFriendRequests('accepted');
 
-            function loadFriendRequests() {
-                fetch("{{ route('friends.show', ['status' => 'pending']) }}")
+            // Filter button logic
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    // Style toggle
+                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.remove('bg-blue-500', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+
+                    button.classList.remove('bg-gray-200', 'text-gray-700');
+                    button.classList.add('bg-blue-500', 'text-white');
+
+                    // Load dynamic content
+                    const status = button.dataset.status;
+                    loadFriendRequests(status);
+                });
+            });
+
+            function loadFriendRequests(status) {
+                fetch(`/friends/show/${status}`)
                     .then(res => res.text())
                     .then(html => {
                         document.getElementById('friend-requests-container').innerHTML = html;
@@ -88,9 +92,10 @@
             }
 
             function attachRequestHandlers() {
+                // Accept request
                 document.querySelectorAll('.accept-request').forEach(button => {
                     button.addEventListener('click', function () {
-                        let id = this.dataset.id;
+                        const id = this.dataset.id;
                         fetch(`/friends/${id}`, {
                             method: 'PUT',
                             headers: {
@@ -98,19 +103,27 @@
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({ status: true })
-                        }).then(() => loadFriendRequests());
+                        }).then(() => {
+                            // Re-fetch current status view
+                            const activeStatus = document.querySelector('.filter-btn.bg-blue-500').dataset.status;
+                            loadFriendRequests(activeStatus);
+                        });
                     });
                 });
 
+                // Decline request
                 document.querySelectorAll('.decline-request').forEach(button => {
                     button.addEventListener('click', function () {
-                        let id = this.dataset.id;
+                        const id = this.dataset.id;
                         fetch(`/friends/${id}`, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             }
-                        }).then(() => loadFriendRequests());
+                        }).then(() => {
+                            const activeStatus = document.querySelector('.filter-btn.bg-blue-500').dataset.status;
+                            loadFriendRequests(activeStatus);
+                        });
                     });
                 });
             }

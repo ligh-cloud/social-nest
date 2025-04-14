@@ -81,14 +81,24 @@ class FriendshipController extends Controller
     {
         $user = Auth::user();
 
-        $friendRequests = Friendship::where('receiver_id', $user->id)
+        if ($status === 'accepted') {
+            $friendRequests = Friendship::where(function ($query) use ($user) {
+                $query->where('sender_id', $user->id)
+                    ->orWhere('receiver_id', $user->id);
+            })
+                ->where('status', 'accepted')
+                ->with(['sender', 'receiver'])
+                ->latest()
+                ->get();
+        } else {
+            // This is for 'pending' requests the user RECEIVED
+            $friendRequests = Friendship::where('receiver_id', $user->id)
+                ->where('status', $status)
+                ->with('sender')
+                ->latest()
+                ->get();
+        }
 
-            ->Where('status' , $status)
-            ->with('sender')
-            ->latest()
-            ->get();
-
-      ;
         return view('partials.friend_requests', compact('friendRequests'))->render();
     }
 

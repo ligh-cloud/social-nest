@@ -84,7 +84,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/friends', [FriendshipController::class, 'store'])->name('friends.store');
     Route::put('/friends/{friendship}', [FriendshipController::class, 'update'])->name('friends.update');
     Route::delete('/friends/{friendship}', [FriendshipController::class, 'destroy'])->name('friends.destroy');
-
     Route::get('/friends/show/{status}', [FriendshipController::class, 'getRequests'])->name('friends.show');
 
     // Route to the admin home page
