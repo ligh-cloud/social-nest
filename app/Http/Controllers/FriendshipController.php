@@ -81,14 +81,14 @@ class FriendshipController extends Controller
     {
         $user = Auth::user();
 
-        $query = Friendship::where('receiver_id', $user->id)
+        $friendRequests = Friendship::where('receiver_id', $user->id)
 
             ->Where('status' , $status)
             ->with('sender')
             ->latest()
             ->get();
 
-        $friendRequests = $query->get();
+      ;
         return view('partials.friend_requests', compact('friendRequests'))->render();
     }
 

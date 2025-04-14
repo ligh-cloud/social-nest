@@ -14,12 +14,12 @@
                 </div>
             </div>
 
-            <div class="flex space-x-2 overflow-x-auto pb-2">
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium whitespace-nowrap">All Friends</button>
-                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Friend request</button>
-                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Birthdays</button>
-                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Work</button>
-                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">College</button>
+            <div class="flex space-x-2 overflow-x-auto pb-2" id="filter-buttons">
+                <button class="filter-btn px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium whitespace-nowrap">All Friends</button>
+                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Friend request</button>
+                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Birthdays</button>
+                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">Work</button>
+                <button class="filter-btn px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm font-medium whitespace-nowrap">College</button>
             </div>
         </div>
 
@@ -60,11 +60,26 @@
 
 @push('scripts')
     <script>
+        //adding the color switch for each button
+        document.querySelectorAll('.filter-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-500', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                });
+
+                button.classList.remove('bg-gray-200', 'text-gray-700');
+                button.classList.add('bg-blue-500', 'text-white');
+            });
+        });
+
+
+
         document.addEventListener('DOMContentLoaded', function () {
             loadFriendRequests();
 
             function loadFriendRequests() {
-                fetch("{{ route('friends.requests') }}")
+                fetch("{{ route('friends.show', ['status' => 'pending']) }}")
                     .then(res => res.text())
                     .then(html => {
                         document.getElementById('friend-requests-container').innerHTML = html;

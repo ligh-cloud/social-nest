@@ -80,7 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/friends', [\App\Http\Controllers\FriendshipController::class, 'index']
     )->name('friends');
 
-    Route::get('/friends/requests', [FriendshipController::class, 'getRequests'])->name('friends.requests');
+//    Route::get('/friends/requests/{', [FriendshipController::class, 'getRequests'])->name('friends.requests');
     Route::post('/friends', [FriendshipController::class, 'store'])->name('friends.store');
     Route::put('/friends/{friendship}', [FriendshipController::class, 'update'])->name('friends.update');
     Route::delete('/friends/{friendship}', [FriendshipController::class, 'destroy'])->name('friends.destroy');
