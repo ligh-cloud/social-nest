@@ -87,6 +87,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/friends/show/{status}', [FriendshipController::class, 'getRequests'])->name('friends.show');
     Route::get('/friends/suggestions', [FriendshipController::class, 'showSuggestions'])->name('friends.suggestions');
 
+// like a post route
+
+
 
     // Route to the admin home page
 

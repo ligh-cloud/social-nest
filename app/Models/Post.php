@@ -12,4 +12,11 @@ class Post extends Model
         'content',
         'privacy',
     ];
+
+    public function likes(){
+        return $this->hasMany(Like::class);
+    }
+    public function comments(){
+        return $this->hasMany(Comment::class);
+    }
 }
