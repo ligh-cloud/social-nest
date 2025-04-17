@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Friendship;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -145,31 +146,27 @@ class FriendshipController extends Controller
     public function showSuggestions()
     {
         $userId = Auth::id();
-
+        $user = Auth::user();
         // Get all friend IDs (both sender and receiver) for the current user
         $friendIds = Friendship::where(function ($query) use ($userId) {
             $query->where('sender_id', $userId)
                 ->orWhere('receiver_id', $userId);
-        })->pluck('sender_id')
-            ->merge(
-                Friendship::where(function ($query) use ($userId) {
-                    $query->where('sender_id', $userId)
-                        ->orWhere('receiver_id', $userId);
-                })->pluck('receiver_id')
-            )->unique()->toArray();
+        })->get()->flatMap(function ($friendship) use ($userId) {
+            return [$friendship->sender_id, $friendship->receiver_id];
+        })->unique()->values()->toArray();
 
-        $friendIds = Friendship::where(function ($query) use ($userId) {
-            $query->where('sender_id', $userId)
-                ->orWhere('receiver_id', $userId)
-                ->get();
-        });
 
-        // Add self to the exclusion list
         $friendIds[] = $userId;
 
-        // Get users who are not in friend list
+
         $suggestedUsers = User::whereNotIn('id', $friendIds)->get();
 
-        return view('partials.friend_suggestions', compact('suggestedUsers'))->render();
+        if (request()->ajax()) {
+
+            return view('partials.user_suggestions', compact('suggestedUsers'))->render();
+        }
+
+        // Return the full page for direct visits
+        return view('user.friend_suggestions', compact('suggestedUsers', 'user'));
     }
 }

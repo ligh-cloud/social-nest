@@ -189,9 +189,9 @@
                 <button class="py-3 px-6 flex items-center justify-center active-tab">
                     <i class="fas fa-home text-xl"></i>
                 </button>
-                <button class="py-3 px-6 flex items-center justify-center text-gray-500">
-                    <i class="fas fa-user-friends text-xl"></i><a href="{{ route('friends.show', ['status' => 'pending']) }}"></a>
-                </button>
+                <a href="{{ route('friends.suggestions') }}" class="py-3 px-6 flex items-center justify-center text-gray-500 hover:text-blue-500">
+                    <i class="fas fa-user-friends text-xl"></i>
+                </a>
                 <button  class="py-3 px-6 flex items-center justify-center text-gray-500">
                     <i class="fas fa-bell text-xl"></i>
                 </button>
