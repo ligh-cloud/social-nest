@@ -18,7 +18,7 @@
         <!-- Suggestions Container -->
         <div class="bg-white rounded-lg shadow-sm p-4">
             <div id="friend-suggestions-container">
-                @include('partials.friend_suggestions', ['suggestedUsers' => $suggestedUsers ?? collect()])
+                @include('partials.friend_suggestions')
             </div>
         </div>
     </div>
@@ -68,39 +68,69 @@
 
             function attachSendRequestHandlers() {
                 document.querySelectorAll('.send-request').forEach(button => {
-                    button.addEventListener('click', function() {
+                    button.addEventListener('click', async function() {
                         const receiverId = this.dataset.id;
-                        const button = th is;
+                        const button = this;
+                        const card = this.closest('.flex.items-center.justify-between');
 
-                        button.disabled = true;
-                        button.innerHTML = `
-                            <span class="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-1"></span>
-                            Sending...
-                        `;
+                        try {
+                            // Show loading state
+                            button.disabled = true;
+                            button.innerHTML = `
+                    <span class="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-1"></span>
+                    Sending...
+                `;
 
-                        fetch('/friends', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ receiver_id: receiverId })
-                        })
-                            .then(response => {
-                                if (!response.ok) throw new Error('Request failed');
-                                return response.json();
-                            })
-                            .then(data => {
-                                // Reload suggestions after successful request
-                                loadSuggestions(searchInput ? searchInput.value.trim() : '');
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                button.disabled = false;
-                                button.textContent = 'Add Friend';
-                                alert('Failed to send friend request. Please try again.');
+                            // Make the request
+                            const response = await fetch('/friends', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({ receiver_id: receiverId })
                             });
+
+                            const data = await response.json();
+
+                            if (!response.ok) {
+                                throw new Error(data.message || 'Request failed');
+                            }
+
+                            // Success - update UI
+                            const successDiv = document.createElement('div');
+                            successDiv.className = 'text-sm text-green-500';
+                            successDiv.textContent = data.message;
+
+                            // Replace button with success message
+                            button.replaceWith(successDiv);
+
+                            // Remove the card after 2 seconds
+                            setTimeout(() => {
+                                card.remove();
+                            }, 2000);
+
+                        } catch (error) {
+                            console.error('Error:', error);
+
+                            // Show error message temporarily
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'text-sm text-red-500 mt-1';
+                            errorDiv.textContent = error.message;
+
+                            // Insert after button
+                            button.parentNode.insertBefore(errorDiv, button.nextSibling);
+
+                            // Reset button
+                            button.disabled = false;
+                            button.textContent = 'Add Friend';
+
+                            // Remove error message after 3 seconds
+                            setTimeout(() => {
+                                errorDiv.remove();
+                            }, 3000);
+                        }
                     });
                 });
             }

@@ -43,15 +43,31 @@ class FriendshipController extends Controller
         $senderId = Auth::id();
         $receiverId = $request->receiver_id;
 
-        // Prevent duplicate or self-requests
-        if ($senderId == $receiverId || Friendship::where([
-                ['sender_id', $senderId],
-                ['receiver_id', $receiverId],
-            ])->orWhere([
-                ['sender_id', $receiverId],
-                ['receiver_id', $senderId],
-            ])->exists()) {
-            return back()->with('error', 'Friend request already exists or invalid.');
+        // Check for existing friendship in either direction
+        $existingFriendship = Friendship::where(function($query) use ($senderId, $receiverId) {
+            $query->where('sender_id', $senderId)
+                ->where('receiver_id', $receiverId);
+        })->orWhere(function($query) use ($senderId, $receiverId) {
+            $query->where('sender_id', $receiverId)
+                ->where('receiver_id', $senderId);
+        })->first();
+
+        if ($senderId == $receiverId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot send a friend request to yourself.'
+            ], 422);
+        }
+
+        if ($existingFriendship) {
+            $message = $existingFriendship->status === 'pending'
+                ? 'Friend request already pending.'
+                : 'You are already friends.';
+
+            return response()->json([
+                'success' => false,
+                'message' => $message
+            ], 422);
         }
 
         Friendship::create([
@@ -60,7 +76,10 @@ class FriendshipController extends Controller
             'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Friend request sent.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Friend request sent successfully!'
+        ]);
     }
 
     /**
