@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        {
-            Schema::create('notifications', function (Blueprint $table) {
-                $table->foreignId('role_id')->constrained()->onDelete('cascade');
-            });
-        }
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 
     /**
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notifications');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };

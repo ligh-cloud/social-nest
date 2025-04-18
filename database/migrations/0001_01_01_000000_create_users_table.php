@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('facebook_id')->nullable();
             $table->string('password');
             $table->string('profile_photo_path')->default('images/default.jpeg');
+            $table->foreignId('role_id')->constrained()->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
         });
