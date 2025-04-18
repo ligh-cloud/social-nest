@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\LikeController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -88,7 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/friends/suggestions', [FriendshipController::class, 'showSuggestions'])->name('friends.suggestions');
 
 // like a post route
-
+Route::post('post/like' , [LikeController::class , 'store'])->name('posts.like');
 
 
     // Route to the admin home page
