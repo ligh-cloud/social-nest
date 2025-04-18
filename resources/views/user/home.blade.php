@@ -93,8 +93,9 @@
 
                                 <!-- Post Actions -->
                                 <div class="flex justify-between text-gray-500 text-sm pt-3 border-t">
-                                    <button id="like_btn" class="flex items-center hover:text-blue-500 px-2 py-1 rounded transition" data-id="{{ $post->id }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <button class="like_btn flex items-center hover:text-blue-500 px-2 py-1 rounded transition" data-id="{{ $post->id }}">
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                                         </svg>
                                         <span id="like_count">Like ({{ $post->likes_count ?? 0 }})</span>
@@ -134,144 +135,169 @@
 
 @push('scripts')
     <script>
-        let page = 1;
-        let loading = false;
-        let hasMore = true;
-        const csrfToken = "{{ csrf_token() }}";
+        // Wait for the DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            let page = 1;
+            let loading = false;
+            let hasMore = true;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content') || "{{ csrf_token() }}";
 
-        window.addEventListener('scroll', () => {
-            if (loading || !hasMore) return;
+            // Initial setup of like buttons
+            attachLikeHandlers();
 
-            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-            if (scrollTop + clientHeight >= scrollHeight - 100) {
-                loadMorePosts();
-            }
-        });
+            // Handle infinite scroll
+            window.addEventListener('scroll', () => {
+                if (loading || !hasMore) return;
 
-        function loadMorePosts() {
-            if (loading || !hasMore) return;
-
-            loading = true;
-            document.getElementById('loading').classList.remove('hidden');
-
-            // Update the URL to match your posts endpoint with per_page parameter
-            const endpoint = window.location.pathname + '?page=' + (page + 1) + '&per_page=5';
-
-            fetch(endpoint, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
+                const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+                if (scrollTop + clientHeight >= scrollHeight - 100) {
+                    loadMorePosts();
                 }
-            })
-                .then(response => {
-                    // First check if the response is valid
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
+            });
 
-                    // Check the content type header to decide how to parse
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        return response.text().then(text => {
-                            // If we get HTML directly, wrap it in an object to match our expected format
-                            return { html: text };
-                        });
-                    }
-                })
-                .then(data => {
-                    // Handle both formats - direct HTML string or JSON with html property
-                    const htmlContent = typeof data === 'string' ? data : data.html;
-
-                    if (!htmlContent || htmlContent.trim() === '') {
-                        hasMore = false;
-                        document.getElementById('loading').innerHTML = '<p class="text-gray-500">No more posts</p>';
-                        return;
-                    }
-
-                    // Create a temporary container to parse the HTML
-                    const tempContainer = document.createElement('div');
-                    tempContainer.innerHTML = htmlContent;
-
-                    // Find all post items in the response and add them to our container
-                    const newPosts = tempContainer.querySelectorAll('.post-item');
-
-                    if (newPosts.length === 0) {
-                        // If we didn't find post items with the expected class, we may be at the end
-                        if (htmlContent.includes('No more posts') || htmlContent.trim() === '') {
-                            hasMore = false;
-                            document.getElementById('loading').innerHTML = '<p class="text-gray-500">No more posts</p>';
-                        } else {
-                            // Otherwise append the whole HTML
-                            document.getElementById('post-container').insertAdjacentHTML('beforeend', htmlContent);
-                        }
-                    } else {
-                        // Track if we found any new posts to determine if there's more content
-                        if (newPosts.length < 5) {
-                            hasMore = false;
-                        }
-
-                        // Append each post separately
-                        newPosts.forEach(post => {
-                            // Check for duplicates by comparing post content or using data attributes
-                            const postContent = post.querySelector('p').textContent;
-                            const existingPosts = document.querySelectorAll('.post-item p');
-                            let isDuplicate = false;
-
-                            existingPosts.forEach(existingPost => {
-                                if (existingPost.textContent === postContent) {
-                                    isDuplicate = true;
-                                }
-                            });
-
-                            if (!isDuplicate) {
-                                document.getElementById('post-container').appendChild(post);
-                            }
-                        });
-                    }
-
-                    page++;
-                    loading = false;
-                    document.getElementById('loading').classList.add('hidden');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('loading').innerHTML = '<p class="text-red-500">Error loading posts</p>';
-                    loading = false;
+            // Function to handle like button clicks
+            function attachLikeHandlers() {
+                const likeBtns = document.querySelectorAll('.like_btn');
+                likeBtns.forEach(button => {
+                    // Remove any existing event listeners to prevent duplicates
+                    button.removeEventListener('click', handleLikeClick);
+                    // Add new event listener
+                    button.addEventListener('click', handleLikeClick);
                 });
-        }
+            }
 
+            // Handler function for like button clicks
+            function handleLikeClick() {
+                const button = this;
+                const postId = button.getAttribute('data-id');
 
-
-        const likeBtns = document.querySelectorAll('.like_btn'); // Fixed 'like_btn' class selection
-        likeBtns.forEach(button => {
-            button.addEventListener('click', () => {
-                const postId = button.getAttribute('data-id'); // Fixed getAttribute
-
-                fetch('post/like', {
+                fetch('/post/like', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
                     },
-                    body: JSON.stringify({ post_id: postId }) // Fixed the object format
+                    body: JSON.stringify({ post_id: postId })
                 })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
-                        const countSpan = button.querySelector('#like_count');
-                        countSpan.innerHTML = `Like (${data.count})`;
-                        console.log(data.liked)
+                        // Find the like count span within this specific button
+                        const countSpan = button.querySelector('span');
+
                         if (data.liked) {
-                            countSpan.innerHTML = `Unlike (${data.count})`;
+                            countSpan.textContent = `Unlike (${data.count})`;
+                            button.classList.add('text-blue-500');
                         } else {
-                            countSpan.innerHTML = `Like (${data.count})`;
+                            countSpan.textContent = `Like (${data.count})`;
+                            button.classList.remove('text-blue-500');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                     });
-            });
+            }
+
+            function loadMorePosts() {
+                if (loading || !hasMore) return;
+
+                loading = true;
+                document.getElementById('loading').classList.remove('hidden');
+
+                // Update the URL to match your posts endpoint with per_page parameter
+                const endpoint = window.location.pathname + '?page=' + (page + 1) + '&per_page=5';
+
+                fetch(endpoint, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        // First check if the response is valid
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+
+                        // Check the content type header to decide how to parse
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.json();
+                        } else {
+                            return response.text().then(text => {
+                                // If we get HTML directly, wrap it in an object to match our expected format
+                                return { html: text };
+                            });
+                        }
+                    })
+                    .then(data => {
+                        // Handle both formats - direct HTML string or JSON with html property
+                        const htmlContent = typeof data === 'string' ? data : data.html;
+
+                        if (!htmlContent || htmlContent.trim() === '') {
+                            hasMore = false;
+                            document.getElementById('loading').innerHTML = '<p class="text-gray-500">No more posts</p>';
+                            return;
+                        }
+
+                        // Create a temporary container to parse the HTML
+                        const tempContainer = document.createElement('div');
+                        tempContainer.innerHTML = htmlContent;
+
+                        // Find all post items in the response and add them to our container
+                        const newPosts = tempContainer.querySelectorAll('.post-item');
+
+                        if (newPosts.length === 0) {
+                            // If we didn't find post items with the expected class, we may be at the end
+                            if (htmlContent.includes('No more posts') || htmlContent.trim() === '') {
+                                hasMore = false;
+                                document.getElementById('loading').innerHTML = '<p class="text-gray-500">No more posts</p>';
+                            } else {
+                                // Otherwise append the whole HTML
+                                document.getElementById('post-container').insertAdjacentHTML('beforeend', htmlContent);
+                            }
+                        } else {
+                            // Track if we found any new posts to determine if there's more content
+                            if (newPosts.length < 5) {
+                                hasMore = false;
+                            }
+
+                            // Append each post separately
+                            newPosts.forEach(post => {
+                                // Check for duplicates by comparing post content or using data attributes
+                                const postContent = post.querySelector('p').textContent;
+                                const existingPosts = document.querySelectorAll('.post-item p');
+                                let isDuplicate = false;
+
+                                existingPosts.forEach(existingPost => {
+                                    if (existingPost.textContent === postContent) {
+                                        isDuplicate = true;
+                                    }
+                                });
+
+                                if (!isDuplicate) {
+                                    document.getElementById('post-container').appendChild(post);
+                                }
+                            });
+                        }
+
+                        // Attach event handlers to newly loaded like buttons
+                        attachLikeHandlers();
+
+                        page++;
+                        loading = false;
+                        document.getElementById('loading').classList.add('hidden');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('loading').innerHTML = '<p class="text-red-500">Error loading posts</p>';
+                        loading = false;
+                    });
+            }
         });
     </script>
 @endpush
