@@ -72,7 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('settings');
 
     // Route to handle user logout
-    Route::get('/logout', function () {
+    Route::post('/logout', function () {
         Auth::logout();
         return redirect('/')->with('message', 'Logged out successfully.');
     })->name('logout');

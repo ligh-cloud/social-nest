@@ -15,4 +15,17 @@ class Like extends Model
     public function post(){
         return $this->belongsTo(Post::class);
     }
+    public function getLikesCountAttribute()
+    {
+        return $this->likes()->count();
+    }
+    public function getLikesStatusAttribute()
+    {
+        if (auth()->check()) {
+            return $this->likes()->where('user_id', auth()->id())->exists();
+        }
+
+        return false;
+    }
+
 }

@@ -11,8 +11,11 @@ class PostController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $posts = Post::latest()->get();
-        return view('user.home', compact('posts' , 'user'));
+        $posts = Post::latest()
+            ->withCount('likes')
+            ->get();
+
+        return view('user.home', compact('posts', 'user'));
     }
 
     public function create()
