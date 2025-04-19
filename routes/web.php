@@ -4,45 +4,24 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LikeController;
+use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\IsArchived;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-// Email Verification Routes
+//the admin panel
 
-// Route to display the email verification notice
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->name('verification.notice');
-
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-    return redirect('/home')->with('success', 'Email verified successfully.');
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
-// Route to resend the email verification link
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('message', 'Verification link sent!');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-
-// Authentication Routes
-
-// Route to display the login page
-Route::get('/', function () {
-    return view('welcome');
-})->name('login');
+Route::middleware([IsAdmin::class])->group(function () {
+    Route::get('/admin' , function (){
+        return view('admin.admin');
+    });
+});
 
 
-
-Route::post('/login' , [AuthController::class , 'login'])->name('auth');
-
-// Route to handle user registration
-Route::post('/register', [AuthController::class, 'register'])->name('register');
-
-// Routes that require authentication and email verification
-Route::middleware(['auth', 'verified'])->group(function () {
+//middleware for the user
+Route::middleware(['auth', 'verified', IsArchived::class])->group(function () {
 
 
     Route::get('/home', [\App\Http\Controllers\PostController::class, 'index']
@@ -89,7 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/friends/suggestions', [FriendshipController::class, 'showSuggestions'])->name('friends.suggestions');
 
 // like a post route
-Route::post('post/like' , [LikeController::class , 'store'])->name('posts.like');
+    Route::post('post/like' , [LikeController::class , 'store'])->name('posts.like');
 
 
     // Route to the admin home page
@@ -119,6 +98,40 @@ Route::post('post/like' , [LikeController::class , 'store'])->name('posts.like')
     })->name('posts.watch');
 });
 
+
+// Email Verification Routes
+
+// Route to display the email verification notice
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/home')->with('success', 'Email verified successfully.');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+// Route to resend the email verification link
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('message', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+// Authentication Routes
+
+// Route to display the login page
+Route::get('/', function () {
+    return view('welcome');
+})->name('login');
+
+Route::post('/login' , [AuthController::class , 'login'])->name('auth');
+
+// Route to handle user registration
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+
+// Routes that require authentication and email verification
+
+
 // Route to handle password reset requests
 Route::get('password', function () {
     return 'Password reset page.';
@@ -140,8 +153,5 @@ Route::get('login/facebook/callback', [FacebookController::class, 'handleFaceboo
 Route::get('/saved' , function (){
     return "this is the saved page";
 })->name("saved");
-Route::get('admin/home', function () {
-    return view('admin.admin');
-})->name('admin.home');
 
 

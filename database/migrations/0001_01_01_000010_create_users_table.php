@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('profile_photo_path')->default('images/default.jpeg');
             $table->foreignId('role_id')->constrained()->onDelete('cascade')->default(2);
+            $table->boolean('archived')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
