@@ -71,6 +71,12 @@
                         <div class="flex items-center">
                             <img src="{{ auth()->user()->profile_photo_path ?? '/api/placeholder/32/32' }}" alt="Admin" class="w-8 h-8 rounded-full mr-2">
                             <span class="text-sm font-medium">{{ auth()->user()->name }}</span>
+                            <form method="POST" action="{{ route('logout') }}" class="ml-4">
+                                @csrf
+                                <button type="submit" class="text-sm text-gray-500 hover:text-gray-700">
+                                    <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
