@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Dashboard')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -220,6 +220,12 @@
 </footer>
 
 <script>
+    // Global error handler
+    window.addEventListener('error', function(event) {
+        console.error('Global error:', event.error);
+        alert('An error occurred: ' + event.error.message);
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         // Mobile menu functionality
         const mobileMenuButton = document.getElementById('mobile-menu-button');

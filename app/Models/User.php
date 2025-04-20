@@ -84,12 +84,12 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Override the restore method to prevent automatic restoration
+     * Override the restore method to allow restoration through admin actions
      */
     public function restore()
     {
-        // Only allow restoration through the admin unban action
-        if (request()->routeIs('admin.users.unban')) {
+        // Allow restoration through admin actions
+        if (request()->routeIs('admin.users.unban') || request()->routeIs('admin.users.unsuspend')) {
             return parent::restore();
         }
         return false;
