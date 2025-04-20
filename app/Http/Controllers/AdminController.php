@@ -23,6 +23,7 @@ class AdminController extends Controller
 
         // Fetch posts with their relationships
         $posts = Post::with(['user', 'likes'])
+            ->withTrashed() // Include soft-deleted posts
             ->latest()
             ->paginate(10);
         
@@ -237,6 +238,30 @@ class AdminController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to unarchive post'
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a post (AJAX)
+     */
+    public function deletePost(Request $request, $postId)
+    {
+        try {
+            $post = Post::findOrFail($postId);
+            $post->delete(); // Soft delete the post
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Post has been deleted successfully',
+                'post_id' => $post->id,
+                'action' => 'delete'
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error deleting post: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete post: ' . $e->getMessage()
             ], 500);
         }
     }

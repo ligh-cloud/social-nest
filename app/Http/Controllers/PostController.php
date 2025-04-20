@@ -25,21 +25,18 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
             'text' => 'nullable|string',
             'image' => 'nullable|image',
-
+            'privacy' => 'required|in:public,friends,private'
         ]);
-
 
         $imagePath = null;
 
         // Check and store the uploaded image
-        if ($request->hasFile('media')) {
-            $imagePath = $request->file('media')->store('posts', 'public');
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('posts', 'public');
         }
-
 
         Post::create([
             'user_id' => Auth::id(),

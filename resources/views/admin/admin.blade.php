@@ -275,19 +275,28 @@
                             @foreach($posts as $post)
                             <tr>
                                 <td class="px-4 py-3">
-                                    <div class="max-w-xs truncate">
-                                        {{ $post->text ?? 'No text content' }}
+                                    <div class="max-w-xs">
+                                        <p class="text-sm text-gray-800 mb-2">{{ $post->text ?? 'No text content' }}</p>
+                                        @if($post->image)
+                                            <div class="mt-2">
+                                                <img src="{{ asset('storage/' . $post->image) }}" 
+                                                     alt="Post image" 
+                                                     class="w-32 h-32 object-cover rounded-lg">
+                                            </div>
+                                        @endif
                                     </div>
-                                    @if($post->image)
-                                        <img src="{{ $post->image }}" alt="Post image" class="mt-2 w-20 h-20 object-cover rounded">
-                                    @endif
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center">
                                         <div class="h-8 w-8 flex-shrink-0 rounded-full bg-gray-300 overflow-hidden mr-2">
-                                            <img src="{{ $post->user->profile_photo_path ?? '/api/placeholder/32/32' }}" alt="User" class="h-full w-full object-cover"/>
+                                            <img src="{{ $post->user->profile_photo_path ? asset('storage/' . $post->user->profile_photo_path) : '/api/placeholder/32/32' }}" 
+                                                 alt="User" 
+                                                 class="h-full w-full object-cover"/>
                                         </div>
-                                        <span class="text-sm">{{ $post->user->name ?? 'Unknown User' }}</span>
+                                        <div>
+                                            <span class="text-sm font-medium">{{ $post->user->name ?? 'Unknown User' }}</span>
+                                            <p class="text-xs text-gray-500">{{ $post->user->email }}</p>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-sm">{{ $post->likes->count() }}</td>
@@ -297,7 +306,7 @@
                                         <button class="text-gray-500 hover:text-gray-700">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="text-red-500 hover:text-red-700">
+                                        <button onclick="deletePost({{ $post->id }})" class="text-red-500 hover:text-red-700">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -405,6 +414,35 @@ function unsuspendUser(userId) {
             } else {
                 alert('Failed to unsuspend user');
             }
+        });
+    }
+}
+
+function deletePost(postId) {
+    if (confirm('Are you sure you want to delete this post?')) {
+        fetch(`/admin/posts/${postId}/delete`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to delete post: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete post: ' + error.message);
         });
     }
 }

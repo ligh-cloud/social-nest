@@ -28,6 +28,9 @@ Route::middleware(['auth', 'verified', IsAdmin::class])->group(function () {
     Route::post('/admin/users/{userId}/suspend', [AdminController::class, 'suspendUser'])->name('admin.users.suspend');
     Route::post('/admin/users/{userId}/unsuspend', [AdminController::class, 'unsuspendUser'])->name('admin.users.unsuspend');
     
+    // Post Management Routes
+    Route::post('/admin/posts/{postId}/delete', [AdminController::class, 'deletePost'])->name('admin.posts.delete');
+    
     // Statistics Routes
     Route::get('/admin/stats/users', [AdminController::class, 'getUserStats'])->name('admin.stats.users');
     Route::get('/admin/stats/posts', [AdminController::class, 'getPostStats'])->name('admin.stats.posts');

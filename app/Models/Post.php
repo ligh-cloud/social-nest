@@ -4,28 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
+    use SoftDeletes;
 
     protected $appends = ['likes_status'];
     protected $fillable = [
         'user_id',
         'image',
-        'content',
+        'text',
         'privacy',
     ];
 
-    public function likes(){
+    public function likes()
+    {
         return $this->hasMany(Like::class);
     }
-    public function comments(){
+
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function getLikesStatusAttribute()
@@ -35,6 +40,4 @@ class Post extends Model
 
         return $this->likes()->where('user_id', $user->id)->exists();
     }
-
-
 }
