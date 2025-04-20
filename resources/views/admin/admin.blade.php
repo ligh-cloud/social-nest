@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -198,12 +199,12 @@
                                             <img src="{{ $user->profile_photo_path ?? '/api/placeholder/40/40' }}" alt="User" class="h-full w-full object-cover"/>
                                         </div>
                                         <div>
-                                            <p class="font-medium text-sm">{{ $user->name }}</p>
-                                            <p class="text-xs text-gray-500">@{{ $user->name }}</p>
+                                            <p class="font-medium text-sm">{{ $user->name ?? 'Unknown User' }}</p>
+                                            <p class="text-xs text-gray-500">@{{ $user->username ?? 'No username' }}</p>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-sm">{{ $user->email }}</td>
+                                <td class="px-4 py-3 text-sm">{{ $user->email ?? 'No email' }}</td>
                                 <td class="px-4 py-3 text-sm">{{ $user->role_id === 1 ? 'Admin' : 'User' }}</td>
                                 <td class="px-4 py-3">
                                     @if($user->trashed())
@@ -286,7 +287,7 @@
                                         <div class="h-8 w-8 flex-shrink-0 rounded-full bg-gray-300 overflow-hidden mr-2">
                                             <img src="{{ $post->user->profile_photo_path ?? '/api/placeholder/32/32' }}" alt="User" class="h-full w-full object-cover"/>
                                         </div>
-                                        <span class="text-sm">{{ $post->user->name }}</span>
+                                        <span class="text-sm">{{ $post->user->name ?? 'Unknown User' }}</span>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-sm">{{ $post->likes->count() }}</td>
@@ -325,13 +326,22 @@ function banUser(userId) {
                 'Accept': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Failed to ban user');
+                alert('Failed to ban user: ' + (data.message || 'Unknown error'));
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to ban user: ' + error.message);
         });
     }
 }

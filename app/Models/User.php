@@ -82,4 +82,16 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->role_id === 1;
     }
+
+    /**
+     * Override the restore method to prevent automatic restoration
+     */
+    public function restore()
+    {
+        // Only allow restoration through the admin unban action
+        if (request()->routeIs('admin.users.unban')) {
+            return parent::restore();
+        }
+        return false;
+    }
 }

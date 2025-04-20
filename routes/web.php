@@ -23,10 +23,10 @@ Route::middleware(['auth', 'verified', IsAdmin::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
     
     // User Management Routes
-    Route::post('/admin/users/{user}/ban', [AdminController::class, 'banUser'])->name('admin.users.ban');
+    Route::post('/admin/users/{userId}/ban', [AdminController::class, 'banUser'])->name('admin.users.ban');
     Route::post('/admin/users/{userId}/unban', [AdminController::class, 'unbanUser'])->name('admin.users.unban');
-    Route::post('/admin/users/{user}/suspend', [AdminController::class, 'suspendUser'])->name('admin.users.suspend');
-    Route::post('/admin/users/{user}/unsuspend', [AdminController::class, 'unsuspendUser'])->name('admin.users.unsuspend');
+    Route::post('/admin/users/{userId}/suspend', [AdminController::class, 'suspendUser'])->name('admin.users.suspend');
+    Route::post('/admin/users/{userId}/unsuspend', [AdminController::class, 'unsuspendUser'])->name('admin.users.unsuspend');
     
     // Statistics Routes
     Route::get('/admin/stats/users', [AdminController::class, 'getUserStats'])->name('admin.stats.users');

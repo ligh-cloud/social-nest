@@ -41,9 +41,10 @@ class AdminController extends Controller
     /**
      * Ban a user (AJAX)
      */
-    public function banUser(Request $request, User $user)
+    public function banUser(Request $request, $userId)
     {
         try {
+            $user = User::findOrFail($userId);
             $user->delete(); // Soft delete for ban
 
             return response()->json([
@@ -56,7 +57,7 @@ class AdminController extends Controller
             Log::error("Error banning user: " . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to ban user'
+                'message' => 'Failed to ban user: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -88,9 +89,10 @@ class AdminController extends Controller
     /**
      * Suspend a user (AJAX)
      */
-    public function suspendUser(Request $request, User $user)
+    public function suspendUser(Request $request, $userId)
     {
         try {
+            $user = User::findOrFail($userId);
             $days = $request->input('days', 7); // Default 7 days suspension
             $user->update([
                 'suspended_until' => Carbon::now()->addDays($days)
@@ -106,7 +108,7 @@ class AdminController extends Controller
             Log::error("Error suspending user: " . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to suspend user'
+                'message' => 'Failed to suspend user: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -114,9 +116,10 @@ class AdminController extends Controller
     /**
      * Unsuspend a user (AJAX)
      */
-    public function unsuspendUser(Request $request, User $user)
+    public function unsuspendUser(Request $request, $userId)
     {
         try {
+            $user = User::findOrFail($userId);
             $user->update([
                 'suspended_until' => null
             ]);
@@ -131,7 +134,7 @@ class AdminController extends Controller
             Log::error("Error unsuspending user: " . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to unsuspend user'
+                'message' => 'Failed to unsuspend user: ' . $e->getMessage()
             ], 500);
         }
     }

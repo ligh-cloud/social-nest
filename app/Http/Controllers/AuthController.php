@@ -37,13 +37,19 @@ class AuthController extends Controller
     }
     public function login(Request $request)
     {
-
         $request->validate([
             'email'=>'required',
             'password'=>'required'
         ]);
-        $user = User::where('email', $request->email)->first();
+
+        // Check for user including soft-deleted (banned) users
+        $user = User::withTrashed()->where('email', $request->email)->first();
+
         if ($user && Hash::check($request->password, $user->password)) {
+            // Check if user is banned
+            if ($user->trashed()) {
+                return back()->with('error', 'Your account has been banned.');
+            }
 
             Auth::login($user);
 
@@ -55,6 +61,6 @@ class AuthController extends Controller
             }
             return redirect()->route('home');
         }
-        return back()->with('error' , 'The provided credentials do not match our records');
+        return back()->with('error', 'The provided credentials do not match our records');
     }
 }
