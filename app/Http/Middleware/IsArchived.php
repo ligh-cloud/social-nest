@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,10 +17,18 @@ class IsArchived
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->archived === false) {
+        if (Auth::check()) {
+
+            $user = User::withTrashed()->find(Auth::id());
+
+            if ($user && $user->trashed()) {
+                Auth::logout();
+                return redirect()->route('login')->with('message', 'Your account has been deactivated.');
+            }
+
             return $next($request);
         }
 
-        return redirect()->route('home')->with('massage' , 'you are banned now');
+        return redirect()->route('login');
     }
 }

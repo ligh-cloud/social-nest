@@ -6,24 +6,30 @@ use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Controllers\PostController;
 
 class IsAdmin
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-
-            if ($user->hasVerifiedEmail() && $user->role_id === 1) {
-                return $next($request);
-            }
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
 
-        abort(403, 'Unauthorized access - Admins only');
+        $user = Auth::user();
+
+        if ($user->role_id === 1) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->role_id === 2) {
+            return $next($request);
+        }
+
+        // Optional: if role_id is something else
+        abort(403, 'Unauthorized access');
     }
 }

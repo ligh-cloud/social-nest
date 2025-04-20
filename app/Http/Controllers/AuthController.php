@@ -50,7 +50,9 @@ class AuthController extends Controller
             // regenerate the session to prevent session fixation attacks
             $request->session()->regenerate();
 
-
+            if($user->role_id === 1){
+                return redirect('/admin');
+            }
             return redirect()->route('home');
         }
         return back()->with('error' , 'The provided credentials do not match our records');
