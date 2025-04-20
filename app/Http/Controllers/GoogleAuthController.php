@@ -47,26 +47,45 @@ class GoogleAuthController extends Controller
             return redirect('/')->with('error', 'Google account does not have an email address.');
         }
 
-        // Check if the user already exists in the database
-        $existingUser = User::where('email', $googleUser->getEmail())->first();
+        // First check if user exists with this Google ID (including soft-deleted users)
+        $existingUser = User::withTrashed()->where('google_id', $googleUser->getId())->first();
 
         if ($existingUser) {
-            // Log the user in if they already exist
+            // If user exists with this Google ID, check if they are soft-deleted
+            if ($existingUser->trashed()) {
+                // Restore the soft-deleted user
+                $existingUser->restore();
+            }
             Auth::login($existingUser);
         } else {
-            // Otherwise, create a new user and log them in
-            $newUser = User::create([
-                'name' => $googleUser->getName(),
-                'email' => $googleUser->getEmail(),
-                'password' => bcrypt(Str::random(16)),
-                'email_verified_at' => now(),
-                'google_id' => $googleUser->getId(),
-                'role_id' => 2,
-            ]);
-            Auth::login($newUser);
+            // If no user with this Google ID, check by email (including soft-deleted users)
+            $existingUser = User::withTrashed()->where('email', $googleUser->getEmail())->first();
+
+            if ($existingUser) {
+                // If user exists with this email, update their Google ID and restore if soft-deleted
+                if ($existingUser->trashed()) {
+                    $existingUser->restore();
+                }
+                $existingUser->update(['google_id' => $googleUser->getId()]);
+                Auth::login($existingUser);
+            } else {
+                // Create a new user
+                $newUser = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => bcrypt(Str::random(16)),
+                    'email_verified_at' => now(),
+                    'google_id' => $googleUser->getId(),
+                    'role_id' => 2,
+                ]);
+                Auth::login($newUser);
+            }
         }
 
-        // Redirect the user to the dashboard or any other secure page
+        // Redirect based on user role
+        if (Auth::user()->role_id === 1) {
+            return redirect('/admin');
+        }
         return redirect('/home');
     }
 }

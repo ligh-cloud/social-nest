@@ -1,157 +1,124 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\Auth\FacebookController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsArchived;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AdminController;
 
-//the admin panel
-
-Route::middleware([IsAdmin::class])->group(function () {
-    Route::get('/admin' , function (){
-        return view('admin.admin');
-    });
+/*
+|--------------------------------------------------------------------------
+| Admin Panel Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', IsAdmin::class])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+    
+    // User Management Routes
+    Route::post('/admin/users/{user}/ban', [AdminController::class, 'banUser'])->name('admin.users.ban');
+    Route::post('/admin/users/{userId}/unban', [AdminController::class, 'unbanUser'])->name('admin.users.unban');
+    Route::post('/admin/users/{user}/suspend', [AdminController::class, 'suspendUser'])->name('admin.users.suspend');
+    Route::post('/admin/users/{user}/unsuspend', [AdminController::class, 'unsuspendUser'])->name('admin.users.unsuspend');
+    
+    // Statistics Routes
+    Route::get('/admin/stats/users', [AdminController::class, 'getUserStats'])->name('admin.stats.users');
+    Route::get('/admin/stats/posts', [AdminController::class, 'getPostStats'])->name('admin.stats.posts');
 });
 
+/*
+|--------------------------------------------------------------------------
+| Authenticated, Verified & Not Archived User Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->group(function () {
 
-//middleware for the user
-Route::middleware(['auth', 'verified', IsArchived::class])->group(function () {
+    // Home & Posts
+    Route::get('/home', [\App\Http\Controllers\PostController::class, 'index'])->name('home');
+    Route::post('/posts', [\App\Http\Controllers\PostController::class, 'store'])->name('posts.store');
+    Route::post('/post/like', [LikeController::class, 'store'])->name('posts.like');
 
+    // Static Pages
+    Route::view('/watch', 'watch')->name('watch');
+    Route::view('/memories', 'memories')->name('memories');
+    Route::view('/pages', 'pages')->name('pages');
+    Route::view('/events', 'events')->name('events');
+    Route::view('/settings', 'settings')->name('settings');
 
-    Route::get('/home', [\App\Http\Controllers\PostController::class, 'index']
-    )->name('home');
+    // User Settings & Other Views
+    Route::view('user/settings', 'user.settings')->name('user.settings');
+    Route::view('/notifications', 'user.notification')->name('notifications');
+    Route::view('/posts/saved', 'user.saved')->name('posts.saved');
+    Route::view('/posts/watch', 'user.watch')->name('posts.watch');
 
-    Route::post('/posts' , [\App\Http\Controllers\PostController::class , 'store'])->name('posts.store');
-
-    // Additional authenticated routes
-    Route::get('/watch', function () {
-        return 'This is the watch page.';
-    })->name('watch');
-
-    Route::get('/memories', function () {
-        return 'This is the memories page.';
-    })->name('memories');
-
-    Route::get('/pages', function () {
-        return 'This is the pages page.';
-    })->name('pages');
-
-    Route::get('/events', function () {
-        return 'This is the events page.';
-    })->name('events');
-
-    Route::get('/settings', function () {
-        return 'This is the settings page.';
-    })->name('settings');
-
-    // Route to handle user logout
-    Route::post('/logout', function () {
-        Auth::logout();
-        return redirect('/')->with('message', 'Logged out successfully.');
-    })->name('logout');
-
-    // every friends routes
-    Route::get('/friends', [\App\Http\Controllers\FriendshipController::class, 'index']
-    )->name('friends');
-
-//    Route::get('/friends/requests/{', [FriendshipController::class, 'getRequests'])->name('friends.requests');
+    // Friends System
+    Route::get('/friends', [FriendshipController::class, 'index'])->name('friends');
     Route::post('/friends', [FriendshipController::class, 'store']);
     Route::put('/friends/{friendship}', [FriendshipController::class, 'update'])->name('friends.update');
     Route::delete('/friends/{friendship}', [FriendshipController::class, 'destroy'])->name('friends.destroy');
     Route::get('/friends/show/{status}', [FriendshipController::class, 'getRequests'])->name('friends.show');
     Route::get('/friends/suggestions', [FriendshipController::class, 'showSuggestions'])->name('friends.suggestions');
 
-// like a post route
-    Route::post('post/like' , [LikeController::class , 'store'])->name('posts.like');
-
-
-    // Route to the admin home page
-
-
-    // Route to user settings
-    Route::get('user/settings', function () {
-        return view('user.settings');
-    })->name('user.settings');
-
-    // Route to view friends list
-
-
-    // Route to view notifications
-    Route::get('/notifications', function () {
-        return view('user.notification');
-    })->name('notifications');
-
-    // Route to view saved posts
-    Route::get('/posts/saved', function () {
-        return view('user.saved');
-    })->name('posts.saved');
-
-    // Route to view watched posts
-    Route::get('/posts/watch', function () {
-        return view('user.watch');
-    })->name('posts.watch');
+    // Logout
+    Route::post('/logout', function () {
+        Auth::logout();
+        return redirect('/')->with('message', 'Logged out successfully.');
+    })->name('logout');
 });
 
-
-// Email Verification Routes
-
-// Route to display the email verification notice
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->name('verification.notice');
+/*
+|--------------------------------------------------------------------------
+| Email Verification Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
     return redirect('/home')->with('success', 'Email verified successfully.');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
-// Route to resend the email verification link
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('message', 'Verification link sent!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
-// Authentication Routes
-
-// Route to display the login page
-Route::get('/', function () {
-    return view('welcome');
-})->name('login');
-
-Route::post('/login' , [AuthController::class , 'login'])->name('auth');
-
-// Route to handle user registration
+/*
+|--------------------------------------------------------------------------
+| Public Routes (Login, Register, Password)
+|--------------------------------------------------------------------------
+*/
+Route::view('/', 'welcome')->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('auth');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::get('password', fn () => 'Password reset page.')->name('password.request');
 
-// Routes that require authentication and email verification
-
-
-// Route to handle password reset requests
-Route::get('password', function () {
-    return 'Password reset page.';
-})->name('password.request');
-
-// Google OAuth Routes
-
-// Route to redirect to Google's OAuth page
+/*
+|--------------------------------------------------------------------------
+| OAuth Routes (Google & Facebook)
+|--------------------------------------------------------------------------
+*/
 Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirect'])->name('auth.google.redirect');
-
-// Route to handle the callback from Google
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
-
-
-use App\Http\Controllers\Auth\FacebookController;
 
 Route::get('login/facebook', [FacebookController::class, 'redirectToFacebook'])->name('login.facebook');
 Route::get('login/facebook/callback', [FacebookController::class, 'handleFacebookCallback']);
-Route::get('/saved' , function (){
-    return "this is the saved page";
-})->name("saved");
 
+/*
+|--------------------------------------------------------------------------
+| Extra
+|--------------------------------------------------------------------------
+*/
+Route::get('/saved', fn () => 'this is the saved page')->name('saved');
 
+// Admin Routes
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+});

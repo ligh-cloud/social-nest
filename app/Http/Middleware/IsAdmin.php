@@ -22,7 +22,8 @@ class IsAdmin
         $user = Auth::user();
 
         if ($user->role_id === 1) {
-            return redirect()->route('admin.dashboard');
+             redirect()->route('admin.dashboard');
+            return $next($request);
         }
 
         if ($user->role_id === 2) {
