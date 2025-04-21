@@ -35,4 +35,9 @@ class MessageSent implements ShouldBroadcast
             'message' => $this->message->load(['sender', 'receiver'])
         ];
     }
+
+    public function broadcastAs()
+    {
+        return 'MessageSent';
+    }
 }

@@ -75,9 +75,14 @@
     // Get the user IDs and sort them to match the channel format
     var userIds = [{{ $user->id }}, {{ auth()->id() }}].sort();
     var channel = pusher.subscribe('private-chat.' + userIds.join('.'));
+
     channel.bind('MessageSent', function(data) {
         var message = data.message;
         var isSender = message.sender_id == {{ auth()->id() }};
+        appendMessage(message, isSender);
+    });
+
+    function appendMessage(message, isSender) {
         var messageHtml = `
             <div class="flex ${isSender ? 'justify-end' : 'justify-start'}">
                 <div class="max-w-[70%]">
@@ -99,18 +104,7 @@
         `;
         document.getElementById('chat-messages').innerHTML += messageHtml;
         document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-    });
-
-    // Error handling for Pusher
-    pusher.connection.bind('error', function(err) {
-        console.error('Pusher error:', err);
-        showError('Connection error. Please refresh the page.');
-    });
-
-    pusher.connection.bind('disconnected', function() {
-        console.error('Pusher disconnected');
-        showError('Disconnected from chat. Please refresh the page.');
-    });
+    }
 
     document.getElementById('message-form').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -134,52 +128,22 @@
                 message: message
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.message || 'Failed to send message');
-                });
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
+                // Immediately append the sent message
+                appendMessage(data.message, true);
                 messageInput.value = '';
-            } else {
-                throw new Error(data.message || 'Failed to send message');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showError(error.message);
         })
         .finally(() => {
-            // Reset button state
             submitButton.disabled = false;
             submitButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
         });
     });
-
-    // Function to show error messages
-    function showError(message) {
-        // Create error element if it doesn't exist
-        var errorElement = document.getElementById('chat-error');
-        if (!errorElement) {
-            errorElement = document.createElement('div');
-            errorElement.id = 'chat-error';
-            errorElement.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-            document.body.appendChild(errorElement);
-        }
-
-        // Show error message
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-
-        // Hide error after 5 seconds
-        setTimeout(() => {
-            errorElement.style.display = 'none';
-        }, 5000);
-    }
 
     // Scroll to bottom on page load
     window.onload = function() {
