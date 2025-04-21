@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -21,16 +23,16 @@ use App\Http\Controllers\AdminController;
 */
 Route::middleware(['auth', 'verified', IsAdmin::class])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
-    
+
     // User Management Routes
     Route::post('/admin/users/{userId}/ban', [AdminController::class, 'banUser'])->name('admin.users.ban');
     Route::post('/admin/users/{userId}/unban', [AdminController::class, 'unbanUser'])->name('admin.users.unban');
     Route::post('/admin/users/{userId}/suspend', [AdminController::class, 'suspendUser'])->name('admin.users.suspend');
     Route::post('/admin/users/{userId}/unsuspend', [AdminController::class, 'unsuspendUser'])->name('admin.users.unsuspend');
-    
+
     // Post Management Routes
     Route::post('/admin/posts/{postId}/delete', [AdminController::class, 'deletePost'])->name('admin.posts.delete');
-    
+
     // Statistics Routes
     Route::get('/admin/stats/users', [AdminController::class, 'getUserStats'])->name('admin.stats.users');
     Route::get('/admin/stats/posts', [AdminController::class, 'getPostStats'])->name('admin.stats.posts');
@@ -68,6 +70,12 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::delete('/friends/{friendship}', [FriendshipController::class, 'destroy'])->name('friends.destroy');
     Route::get('/friends/show/{status}', [FriendshipController::class, 'getRequests'])->name('friends.show');
     Route::get('/friends/suggestions', [FriendshipController::class, 'showSuggestions'])->name('friends.suggestions');
+
+    // Chat system
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat');
+    Route::get('/messages/{user}', [ChatController::class, 'getMessages']);
+    Route::post('/messages/{user}', [ChatController::class, 'sendMessage']);
 
     // Logout
     Route::post('/logout', function () {
