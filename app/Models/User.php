@@ -94,4 +94,11 @@ class User extends Authenticatable implements MustVerifyEmail
         }
         return false;
     }
+
+    public function lastMessage()
+    {
+        return $this->hasOne(Chat::class, 'sender_id')
+            ->orWhere('receiver_id', $this->id)
+            ->latest();
+    }
 }

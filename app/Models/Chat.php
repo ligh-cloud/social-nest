@@ -12,8 +12,10 @@ class Chat extends Model
     protected $fillable = [
         'sender_id',
         'receiver_id',
-        'text'
+        'message'
     ];
+
+    protected $with = ['sender', 'receiver'];
 
     public function sender()
     {
@@ -25,4 +27,14 @@ class Chat extends Model
         return $this->belongsTo(User::class, 'receiver_id');
     }
 
+    public function scopeBetweenUsers($query, $user1, $user2)
+    {
+        return $query->where(function($q) use ($user1, $user2) {
+            $q->where('sender_id', $user1)
+              ->where('receiver_id', $user2);
+        })->orWhere(function($q) use ($user1, $user2) {
+            $q->where('sender_id', $user2)
+              ->where('receiver_id', $user1);
+        });
+    }
 }

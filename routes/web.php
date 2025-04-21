@@ -73,9 +73,9 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
 
     // Chat system
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat');
-    Route::get('/messages/{user}', [ChatController::class, 'getMessages']);
-    Route::post('/messages/{user}', [ChatController::class, 'sendMessage']);
+    Route::get('/messages', [ChatController::class, 'messages'])->name('messages');
+    Route::get('/chat/{user}', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/{user}', [ChatController::class, 'sendMessage'])->name('chat.send');
 
     // Logout
     Route::post('/logout', function () {
@@ -89,7 +89,7 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
 | Email Verification Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
+Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');  
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();

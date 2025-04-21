@@ -51,9 +51,9 @@
                         </a>
                     </li>
                     <li class="mb-1">
-                        <a href="{{ route('memories') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg">
-                            <i class="fas fa-clock text-blue-400 mr-3 text-xl"></i>
-                            <span>Memories</span>
+                        <a href="{{ route('messages') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg">
+                            <i class="fas fa-comments text-blue-400 mr-3 text-xl"></i>
+                            <span>Messages</span>
                         </a>
                     </li>
                     <li class="mb-1">
@@ -139,9 +139,9 @@
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="{{ route('memories') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg">
-                            <i class="fas fa-clock text-blue-400 mr-3 text-xl"></i>
-                            <span>Memories</span>
+                        <a href="{{ route('messages') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg">
+                            <i class="fas fa-comments text-blue-400 mr-3 text-xl"></i>
+                            <span>Messages</span>
                         </a>
                     </li>
                     <li class="mb-2">
