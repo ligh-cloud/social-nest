@@ -9,5 +9,9 @@ class Notification extends Model
     protected $fillable = [
         ''
     ];
+    public function notifiable()
+    {
+        return $this->morphTo();
+    }
 
 }

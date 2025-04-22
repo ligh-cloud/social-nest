@@ -33,17 +33,27 @@ class PostController extends Controller
 
         $imagePath = null;
 
-        // Check and store the uploaded image
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('posts', 'public');
+
+        if ($request->hasFile('media')) {
+            $imagePath = $request->file('media')->store('posts', 'public');
         }
 
-        Post::create([
+        $post = Post::create([
             'user_id' => Auth::id(),
             'text' => $request->text,
             'image' => $imagePath,
             'privacy' => $request->privacy,
         ]);
+
+        if (in_array($post->privacy, ['public', 'friends'])) {
+            $friends = Auth::user()->friends;
+            foreach ($friends as $friend) {
+                $post->notifications()->create([
+                    'user_id' => $friend->id,
+                    'type' => 'post',
+                ]);
+            }
+        }
 
         return redirect()->back()->with('success', 'Post created.');
     }

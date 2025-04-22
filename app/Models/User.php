@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Notification;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -100,5 +101,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Chat::class, 'sender_id')
             ->orWhere('receiver_id', $this->id)
             ->latest();
+    }
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'receiver_id');
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
     }
 }

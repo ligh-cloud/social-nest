@@ -1,31 +1,30 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace App\Models;
 
-return new class extends Migration
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Notification extends Model
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    protected $fillable = [
+        'user_id',
+        'type',
+        'notifiable_id',
+        'notifiable_type',
+        'read_at',
+    ];
+
+
+    public function notifiable(): MorphTo
     {
-        Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->morphs('notifiable');
-            $table->foreignId('actor_id')->constrained('users')->onDelete('cascade');
-            $table->string('message');
-            $table->boolean('read')->default(false);
-        });
+        return $this->morphTo();
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+
+    public function user(): BelongsTo
     {
-        Schema::dropIfExists('notifications');
+        return $this->belongsTo(User::class);
     }
-};
+}
