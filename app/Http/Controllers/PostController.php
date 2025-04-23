@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ class PostController extends Controller
     {
         $request->validate([
             'text' => 'nullable|string',
-            'image' => 'nullable|image',
+            'media' => 'nullable|image',
             'privacy' => 'required|in:public,friends,private'
         ]);
 
@@ -45,12 +46,21 @@ class PostController extends Controller
             'privacy' => $request->privacy,
         ]);
 
-        if (in_array($post->privacy, ['public', 'friends'])) {
-            $friends = Auth::user()->friends;
+        if ($post->privacy === 'friends' || $post->privacy === 'public') {
+
+            $friends = Auth::user()->friends();
+
             foreach ($friends as $friend) {
-                $post->notifications()->create([
-                    'user_id' => $friend->id,
+
+                Notification::create([
+
                     'type' => 'post',
+                    'notifiable_id' => $post->id,
+                    'notifiable_type' => Post::class,
+                    'read' => false,
+                    'actor_id' => $friend->id,
+                    'message' => $friend->name . "created a post",
+
                 ]);
             }
         }
@@ -72,7 +82,7 @@ class PostController extends Controller
     {
         $request->validate([
             'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png',
+            'media' => 'nullable|image|mimes:jpg,jpeg,png',
             'privacy' => 'required|in:public,friends,private',
         ]);
 
