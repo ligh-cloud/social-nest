@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SavedController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -77,6 +79,14 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::get('/chat/{user}', [ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/{user}', [ChatController::class, 'sendMessage'])->name('chat.send');
 
+  //Saved system
+        Route::get('/saved-posts', [SavedController::class, 'index'])->name('saved.index');
+        Route::post('/posts/{post}/save', [SavedController::class, 'store'])->name('saved.store');
+        Route::delete('/posts/{post}/unsave', [SavedController::class, 'destroy'])->name('saved.destroy');
+
+        //comments system
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     // Logout
     Route::post('/logout', function () {
         Auth::logout();
@@ -84,12 +94,13 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     })->name('logout');
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | Email Verification Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');  
+Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();

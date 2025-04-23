@@ -107,10 +107,13 @@
                                         </svg>
 
                                         <span id="like_count_{{ $post->id }}">
-        {{ $post->likes_status ? 'Liked' : 'Like' }} ({{ $post->likes_count }})
-    </span>
+                                            {{ $post->likes_status ? 'Liked' : 'Like' }} ({{ $post->likes_count }})
+                                        </span>
                                     </button>
-                                    <button class="flex items-center hover:text-blue-500 px-2 py-1 rounded transition">
+                                    <button
+                                        class="comment_btn flex items-center hover:text-blue-500 px-2 py-1 rounded transition"
+                                        data-id="{{ $post->id }}"
+                                    >
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                         </svg>
@@ -123,6 +126,57 @@
                                         <span>Share</span>
                                     </button>
                                 </div>
+
+                                <!-- Comment Form (Initially Hidden) -->
+                                <div id="comment-form-{{ $post->id }}" class="comment-form mt-3 pt-3 border-t hidden">
+                                    <form action="{{ route('comments.store', $post->id) }}" method="POST" class="flex items-start">
+                                        @csrf
+                                        <img src="{{ asset('storage/' . $user->profile_photo_path) }}"
+                                             alt="User Profile"
+                                             class="w-8 h-8 rounded-full mr-2 mt-1">
+                                        <div class="flex-grow">
+                                            <textarea
+                                                name="text"
+                                                placeholder="Write a comment..."
+                                                class="w-full py-2 px-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 transition resize-none"
+                                                rows="2"
+                                                required
+                                            ></textarea>
+                                            <button type="submit"
+                                                    class="mt-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1 px-4 rounded-lg transition duration-200">
+                                                Comment
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Display Comments -->
+                                @if(isset($post->comments) && count($post->comments) > 0)
+                                    <div class="comments-container mt-3 pt-3 border-t">
+                                        <h4 class="text-sm font-medium text-gray-700 mb-2">Comments</h4>
+                                        @foreach($post->comments as $comment)
+                                            <div class="comment flex mb-3">
+                                                <img src="{{ asset('storage/' . $comment->user->profile_photo_path) }}"
+                                                     alt="User Profile"
+                                                     class="w-8 h-8 rounded-full mr-2">
+                                                <div class="bg-gray-100 rounded-lg py-2 px-3 flex-grow">
+                                                    <div class="font-medium text-sm">{{ $comment->user->name }}</div>
+                                                    <p class="text-sm text-gray-700">{{ $comment->content }}</p>
+                                                    <div class="text-xs text-gray-500 mt-1">{{ $comment->created_at->diffForHumans() }}</div>
+                                                </div>
+                                                @auth
+                                                    @if(Auth::user()->role_id == 1)
+                                                        <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" class="ml-2">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="text-xs text-red-600 hover:underline">Delete</button>
+                                                        </form>
+                                                    @endif
+                                                @endauth
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endif
@@ -155,6 +209,9 @@
             // Initial setup of like buttons
             attachLikeHandlers();
 
+            // Initial setup of comment buttons
+            attachCommentHandlers();
+
             // Handle infinite scroll
             window.addEventListener('scroll', () => {
                 if (loading || !hasMore) return;
@@ -174,6 +231,32 @@
                     // Add new event listener
                     button.addEventListener('click', handleLikeClick);
                 });
+            }
+
+            // Function to handle comment button clicks
+            function attachCommentHandlers() {
+                const commentBtns = document.querySelectorAll('.comment_btn');
+                commentBtns.forEach(button => {
+                    // Remove any existing event listeners to prevent duplicates
+                    button.removeEventListener('click', handleCommentClick);
+                    // Add new event listener
+                    button.addEventListener('click', handleCommentClick);
+                });
+            }
+
+            // Handler function for comment button clicks
+            function handleCommentClick() {
+                const postId = this.getAttribute('data-id');
+                const commentForm = document.getElementById(`comment-form-${postId}`);
+
+                // Toggle the form's visibility
+                if (commentForm.classList.contains('hidden')) {
+                    commentForm.classList.remove('hidden');
+                    // Focus on the comment textarea
+                    commentForm.querySelector('textarea').focus();
+                } else {
+                    commentForm.classList.add('hidden');
+                }
             }
 
             // Handler function for like button clicks
@@ -295,8 +378,9 @@
                             });
                         }
 
-                        // Attach event handlers to newly loaded like buttons
+                        // Attach event handlers to newly loaded buttons
                         attachLikeHandlers();
+                        attachCommentHandlers();
 
                         page++;
                         loading = false;
