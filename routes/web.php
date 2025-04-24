@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SavedController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -79,12 +80,12 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::get('/chat/{user}', [ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/{user}', [ChatController::class, 'sendMessage'])->name('chat.send');
 
-  //Saved system
-        Route::get('/saved-posts', [SavedController::class, 'index'])->name('saved.index');
-        Route::post('/posts/{post}/save', [SavedController::class, 'store'])->name('saved.store');
-        Route::delete('/posts/{post}/unsave', [SavedController::class, 'destroy'])->name('saved.destroy');
+    //Saved system
+    Route::get('/saved-posts', [SavedController::class, 'index'])->name('saved.index');
+    Route::post('/posts/{post}/save', [SavedController::class, 'store'])->name('saved.store');
+    Route::delete('/posts/{post}/unsave', [SavedController::class, 'destroy'])->name('saved.destroy');
 
-        //comments system
+    //comments system
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     // Logout
@@ -92,7 +93,15 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
         Auth::logout();
         return redirect('/')->with('message', 'Logged out successfully.');
     })->name('logout');
+
+    //the notification views and logic
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markOneAsRead'])->name('notifications.markOneAsRead');
 });
+
+
+
 
 
 /*
@@ -100,7 +109,7 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
 | Email Verification Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
+Route::get('/email/verify', fn() => view('auth.verify-email'))->name('verification.notice');
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
@@ -120,7 +129,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 Route::view('/', 'welcome')->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('auth');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
-Route::get('password', fn () => 'Password reset page.')->name('password.request');
+Route::get('password', fn() => 'Password reset page.')->name('password.request');
 
 /*
 |--------------------------------------------------------------------------
@@ -138,7 +147,7 @@ Route::get('login/facebook/callback', [FacebookController::class, 'handleFaceboo
 | Extra
 |--------------------------------------------------------------------------
 */
-Route::get('/saved', fn () => 'this is the saved page')->name('saved');
+Route::get('/saved', fn() => 'this is the saved page')->name('saved');
 
 // Admin Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {

@@ -196,10 +196,46 @@
                 <a href="{{ route('friends.suggestions') }}" class="py-3 px-6 flex items-center justify-center text-gray-500 hover:text-blue-500">
                     <i class="fas fa-user-friends text-xl"></i>
                 </a>
-                <button id="notification-button" class="relative py-3 px-6 flex items-center justify-center text-gray-500 hover:text-blue-500">
-                    <i class="fas fa-bell text-xl"></i>
-                    <span id="notification-badge" class="absolute top-2 right-3 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                <!-- Notification Bell Button -->
+                <button id="notification-toggle" class="relative p-2 text-gray-600 hover:text-blue-500 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+
+                    <!-- Notification Counter -->
+                    <span id="notification-counter" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full {{ Auth::user()->unreadNotifications->count() > 0 ? '' : 'hidden' }}">
+        {{ Auth::user()->unreadNotifications->count() }}
+    </span>
                 </button>
+
+                <!-- Notification Dropdown -->
+                <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50 hidden">
+                    <div class="py-2 px-3 bg-gray-100 border-b">
+                        <h3 class="text-sm font-medium text-gray-700">Notifications</h3>
+                    </div>
+                    <div id="notification-list" class="max-h-64 overflow-y-auto">
+                        @forelse (Auth::user()->notifications()->take(5)->get() as $notification)
+                            <div class="flex items-center p-3 border-b hover:bg-gray-50 transition {{ $notification->read_at ? '' : 'bg-blue-50' }}">
+                                <div class="flex-shrink-0 mr-3">
+                                    <img src="{{ isset($notification->data['user_image']) ? asset('storage/' . $notification->data['user_image']) : '/images/default-avatar.png' }}" alt="" class="w-10 h-10 rounded-full">
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-sm font-medium">{{ $notification->data['message'] ?? 'New notification' }}</p>
+
+                                    <p class="text-xs text-gray-500 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="p-4 text-center text-gray-500 text-sm">
+                                No notifications yet
+                            </div>
+                        @endforelse
+                    </div>
+                    <div class="p-2 bg-gray-50 border-t text-center">
+                        <a href="{{ route('notifications.index') }}" class="text-sm text-blue-500 hover:underline">View all notifications</a>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -211,32 +247,102 @@
 <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/laravel-echo/dist/echo.iife.js"></script>
 <script>
-    document.getElementById('notification-button').addEventListener('click', function() {
-        // Toggle notification panel or navigate to notifications page
-        const badge = document.getElementById('notification-badge');
-        badge.classList.add('hidden');
-        badge.textContent = '0';
+    document.addEventListener('DOMContentLoaded', function () {
+        const userId = document.querySelector('meta[name="user-id"]')?.getAttribute('content');
+
+        if (userId && window.Echo) {
+            // Listen for notifications on the private channel
+            window.Echo.private(`App.Models.User.${userId}`)
+                .notification((notification) => {
+                    console.log('Received notification:', notification);
+                    displayNotification(notification);
+                    updateNotificationCounter();
+                });
+        }
+
+        // Toggle notification dropdown
+        const notificationToggle = document.getElementById('notification-toggle');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+
+        if (notificationToggle && notificationDropdown) {
+            notificationToggle.addEventListener('click', function () {
+                notificationDropdown.classList.toggle('hidden');
+                if (!notificationDropdown.classList.contains('hidden')) {
+                    markNotificationsAsRead();
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (event) {
+                if (!notificationToggle.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                    notificationDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        // Display a new notification
+        function displayNotification(notification) {
+            const container = document.getElementById('notification-list');
+            if (!container) return;
+
+            const notifElement = document.createElement('div');
+            notifElement.className = `flex items-center p-3 border-b hover:bg-gray-50 transition ${notification.read_at ? '' : 'bg-blue-50'}`;
+            const userImagePath = notification.user_image ? `/storage/${notification.user_image}` : '/images/default-avatar.png';
+            const timeAgo = formatTimeAgo(new Date(notification.created_at));
+
+            notifElement.innerHTML = `
+                <div class="flex-shrink-0 mr-3">
+                    <img src="${userImagePath}" alt="" class="w-10 h-10 rounded-full">
+                </div>
+                <div class="flex-grow">
+                    <p class="text-sm font-medium">${notification.message}</p>
+                    <a href="/posts/${notification.post_id}" class="text-xs text-blue-500 hover:underline">View post</a>
+                    <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
+                </div>
+            `;
+            container.insertBefore(notifElement, container.firstChild);
+        }
+
+        // Update notification counter
+        function updateNotificationCounter() {
+            const counter = document.getElementById('notification-counter');
+            if (counter) {
+                const currentCount = parseInt(counter.textContent || '0');
+                counter.textContent = currentCount + 1;
+                counter.classList.remove('hidden');
+            }
+        }
+
+        // Format time as "x minutes ago"
+        function formatTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+
+            return "just now";
+        }
+
+        // Mark notifications as read (via fetch)
+        function markNotificationsAsRead() {
+            fetch('/notifications/mark-as-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                }
+            });
+        }
     });
-
-    window.Pusher = Pusher;
-
-    window.Echo = new Echo({
-        broadcaster: 'pusher',
-        key: '{{ env("PUSHER_APP_KEY") }}',
-        cluster: '{{ env("PUSHER_APP_CLUSTER") }}',
-        encrypted: true
-    });
-
-    window.Echo.private(`App.Models.User.${window.userId}`)
-        .notification((notification) => {
-            console.log('New Notification:', notification);
-
-            const badge = document.getElementById('notification-badge');
-            let count = parseInt(badge.textContent || '0') + 1;
-
-            badge.textContent = count;
-            badge.classList.remove('hidden');
-
-
-        });
 </script>
