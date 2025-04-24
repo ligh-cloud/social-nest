@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Notification;
+
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Notifications\FriendPosted;
 class PostController extends Controller
 {
     public function index()
@@ -47,21 +47,10 @@ class PostController extends Controller
         ]);
 
         if ($post->privacy === 'friends' || $post->privacy === 'public') {
-
             $friends = Auth::user()->friends();
 
             foreach ($friends as $friend) {
-
-                Notification::create([
-
-                    'type' => 'post',
-                    'notifiable_id' => $post->id,
-                    'notifiable_type' => Post::class,
-                    'read' => false,
-                    'actor_id' => $friend->id,
-                    'message' => $friend->name . "created a post",
-
-                ]);
+                $friend->notify(new FriendPosted($post));
             }
         }
 

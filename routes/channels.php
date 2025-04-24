@@ -14,3 +14,6 @@ Broadcast::channel('chat.{id}', function ($user, $id) {
 Broadcast::channel('presence.chat', function ($user) {
     return ['id' => $user->id, 'name' => $user->name];
 });
+
+
+

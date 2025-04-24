@@ -7,6 +7,10 @@
 <!-- Mobile Menu Overlay -->
 <div id="menu-overlay" class="menu-overlay fixed inset-0 z-40 lg:hidden"></div>
 
+
+
+
+
 <!-- Main Content Wrapper -->
 <div class="flex">
     <!-- Left Sidebar - Desktop view -->
@@ -192,8 +196,9 @@
                 <a href="{{ route('friends.suggestions') }}" class="py-3 px-6 flex items-center justify-center text-gray-500 hover:text-blue-500">
                     <i class="fas fa-user-friends text-xl"></i>
                 </a>
-                <button  class="py-3 px-6 flex items-center justify-center text-gray-500">
+                <button id="notification-button" class="relative py-3 px-6 flex items-center justify-center text-gray-500 hover:text-blue-500">
                     <i class="fas fa-bell text-xl"></i>
+                    <span id="notification-badge" class="absolute top-2 right-3 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
                 </button>
             </div>
         </div>
@@ -203,3 +208,35 @@
 
     </div>
 </div>
+<script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo/dist/echo.iife.js"></script>
+<script>
+    document.getElementById('notification-button').addEventListener('click', function() {
+        // Toggle notification panel or navigate to notifications page
+        const badge = document.getElementById('notification-badge');
+        badge.classList.add('hidden');
+        badge.textContent = '0';
+    });
+
+    window.Pusher = Pusher;
+
+    window.Echo = new Echo({
+        broadcaster: 'pusher',
+        key: '{{ env("PUSHER_APP_KEY") }}',
+        cluster: '{{ env("PUSHER_APP_CLUSTER") }}',
+        encrypted: true
+    });
+
+    window.Echo.private(`App.Models.User.${window.userId}`)
+        .notification((notification) => {
+            console.log('New Notification:', notification);
+
+            const badge = document.getElementById('notification-badge');
+            let count = parseInt(badge.textContent || '0') + 1;
+
+            badge.textContent = count;
+            badge.classList.remove('hidden');
+
+
+        });
+</script>
