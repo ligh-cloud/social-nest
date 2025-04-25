@@ -3,52 +3,90 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
-class SettingController extends Controller
+class NotificationController extends Controller
 {
+    /**
+     * Get all notifications for the authenticated user
+     */
     public function index()
     {
-        $user = Auth::user();
-        return view('user.settings', ['user' => $user]);
+        $user = auth()->user();
+        $notifications = $user->notifications()->paginate(15);
+
+
+        $user->unreadNotifications->markAsRead();
+
+        return view('notifications.index', compact('notifications' , 'user'));
     }
 
-    public function update(Request $request)
+    /**
+     * Get unread notifications for the authenticated user
+     */
+    public function getUnread()
     {
-        $user = Auth::user();
+        $notifications = auth()->user()->unreadNotifications;
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'bio' => 'nullable|string|max:255',
-            'current_password' => 'nullable|required_with:password|current_password',
-            'password' => 'nullable|string|min:6|confirmed',
-            'profile_photo' => 'nullable|image|max:2048', // 2MB max
+        return response()->json([
+            'notifications' => $notifications
         ]);
+    }
 
-        $user->name = $request->name;
-        $user->bio = $request->bio;
+    /**
+     * Mark all notifications as seen
+     * (Different from read - seen means user has viewed them in the dropdown)
+     */
+    public function markAsSeen()
+    {
+        $user = auth()->user();
 
-        // Update password if provided
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
+        // We're not marking them as read, just updating a "seen_at" timestamp
+        // so we know user has seen them in the dropdown
+        foreach ($user->unreadNotifications as $notification) {
+            $notification->data = array_merge($notification->data, ['seen_at' => now()]);
+            $notification->save();
         }
 
-        // Handle profile photo upload
-        if ($request->hasFile('profile_photo')) {
-            $path = $request->file('profile_photo')->store('profile-photos', 'public');
+        return response()->json(['success' => true]);
+    }
 
-            // Delete old photo if it's not the default
-            if ($user->profile_photo_path !== 'images/default.jpeg') {
-                Storage::disk('public')->delete($user->profile_photo_path);
-            }
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllAsRead()
+    {
+        $user = auth()->user();
+        $user->unreadNotifications->markAsRead();
 
-            $user->profile_photo_path = $path;
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Toggle read status of a specific notification
+     */
+    public function toggleRead($id)
+    {
+        $user = auth()->user();
+        $notification = $user->notifications()->findOrFail($id);
+
+        if ($notification->read_at) {
+            // Mark as unread
+            $notification->read_at = null;
+            $notification->save();
+
+            return response()->json([
+                'success' => true,
+                'read' => false
+            ]);
+        } else {
+            // Mark as read
+            $notification->markAsRead();
+
+            return response()->json([
+                'success' => true,
+                'read' => true
+            ]);
         }
-
-        $user->save();
-
-        return back()->with('success', 'Profile updated successfully.');
     }
 }
