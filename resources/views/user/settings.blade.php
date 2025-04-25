@@ -3,7 +3,6 @@
 @section('title', 'Settings')
 
 @section('content')
-    <!-- Settings Content -->
     <div class="mt-4">
         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
             <div class="p-4 border-b">
@@ -21,23 +20,8 @@
                                 </a>
                             </li>
                             <li class="mb-1">
-                                <a href="#privacy" class="block py-2 px-3 hover:bg-gray-100 rounded">
-                                    <i class="fas fa-lock mr-2"></i> Privacy
-                                </a>
-                            </li>
-                            <li class="mb-1">
-                                <a href="#notifications" class="block py-2 px-3 hover:bg-gray-100 rounded">
-                                    <i class="far fa-bell mr-2"></i> Notifications
-                                </a>
-                            </li>
-                            <li class="mb-1">
                                 <a href="#security" class="block py-2 px-3 hover:bg-gray-100 rounded">
                                     <i class="fas fa-shield-alt mr-2"></i> Security
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#connected" class="block py-2 px-3 hover:bg-gray-100 rounded">
-                                    <i class="fas fa-link mr-2"></i> Connected Accounts
                                 </a>
                             </li>
                         </ul>
@@ -46,23 +30,29 @@
 
                 <!-- Settings Content -->
                 <div class="md:w-3/4 p-6">
+                    @if(session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
                     <div id="profile">
                         <h3 class="text-lg font-semibold mb-4">Profile Information</h3>
 
-
-
-                        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('settings.update') }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
 
                             <div class="flex items-center mb-6">
                                 <div class="relative mr-4 w-24 h-24">
-                                    <img src="{{ asset('storage/profile/profile.jpg') }}" alt="User Profile" class="w-24 h-24 rounded-full object-cover">
+                                    <img src="{{ asset('storage/' . $user->profile_photo_path) }}"
+                                         alt="User Profile"
+                                         class="w-24 h-24 rounded-full object-cover">
 
                                     <!-- File Input (hidden) -->
                                     <input
                                         type="file"
-                                        name="image"
+                                        name="profile_photo"
                                         id="profileImage"
                                         class="absolute inset-0 opacity-0 cursor-pointer"
                                         accept="image/*"
@@ -83,36 +73,28 @@
                                 </div>
                             </div>
 
-                            <!-- Other form fields -->
-                            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                                    <input type="text" id="firstname" name="firstname" value="{{ $user->name }}" class="w-full px-3 py-2 border rounded-md">
-                                </div>
-                                <div>
-                                    <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                                    <input type="text" id="lastname" name="lastname" value="Johnson" class="w-full px-3 py-2 border rounded-md">
-                                </div>
+                            <div class="mb-4">
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}"
+                                       class="w-full px-3 py-2 border rounded-md @error('name') border-red-500 @enderror">
+                                @error('name')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="mb-4">
                                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                                <input type="email" id="email" disabled value="{{ $user->email }}" class="w-full px-3 py-2 border rounded-md">
+                                <input type="email" id="email" disabled value="{{ $user->email }}"
+                                       class="w-full px-3 py-2 border rounded-md bg-gray-100">
                             </div>
 
                             <div class="mb-4">
                                 <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                                <textarea id="bio" name="bio" rows="3" class="w-full px-3 py-2 border rounded-md">Hiking enthusiast and nature photographer. Love exploring the great outdoors!</textarea>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                                <input type="text" id="location" name="location" value="Seattle, WA" class="w-full px-3 py-2 border rounded-md">
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="website" class="block text-sm font-medium text-gray-700 mb-1">Website</label>
-                                <input type="url" id="website" name="website" value="https://sarahjohnson.photo" class="w-full px-3 py-2 border rounded-md">
+                                <textarea id="bio" name="bio" rows="3"
+                                          class="w-full px-3 py-2 border rounded-md @error('bio') border-red-500 @enderror">{{ old('bio', $user->bio) }}</textarea>
+                                @error('bio')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div class="flex justify-end">
@@ -121,7 +103,45 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
 
+                    <div id="security" class="mt-8 pt-8 border-t">
+                        <h3 class="text-lg font-semibold mb-4">Security Settings</h3>
+
+                        <form method="POST" action="{{ route('settings.update') }}">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="mb-4">
+                                <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                                <input type="password" id="current_password" name="current_password"
+                                       class="w-full px-3 py-2 border rounded-md @error('current_password') border-red-500 @enderror">
+                                @error('current_password')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                                <input type="password" id="password" name="password"
+                                       class="w-full px-3 py-2 border rounded-md @error('password') border-red-500 @enderror">
+                                @error('password')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                                <input type="password" id="password_confirmation" name="password_confirmation"
+                                       class="w-full px-3 py-2 border rounded-md">
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                                    Update Password
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -131,22 +151,44 @@
 
 @push('scripts')
     <script>
-        // Example of page-specific JavaScript
-        console.log('Settings page loaded');
-
-        // Handle tab navigation
         document.addEventListener('DOMContentLoaded', function() {
+            // Handle tab navigation
             const navLinks = document.querySelectorAll('nav a');
+            const sections = document.querySelectorAll('#profile, #security');
+
             navLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
-                    // Remove active class from all links
+                    e.preventDefault();
+
+                    // Hide all sections
+                    sections.forEach(section => {
+                        section.classList.add('hidden');
+                    });
+
+                    // Show the selected section
+                    const target = this.getAttribute('href').substring(1);
+                    document.getElementById(target).classList.remove('hidden');
+
+                    // Update active link
                     navLinks.forEach(l => {
                         l.classList.remove('bg-blue-50', 'text-blue-600');
                     });
-
-                    // Add active class to clicked link
                     this.classList.add('bg-blue-50', 'text-blue-600');
                 });
+            });
+
+            // Initialize the first section as visible
+            document.getElementById('profile').classList.remove('hidden');
+
+            // Profile photo preview
+            document.getElementById('profileImage').addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.querySelector('.relative img').setAttribute('src', e.target.result);
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
             });
         });
     </script>

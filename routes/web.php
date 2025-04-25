@@ -63,8 +63,8 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
 
 
     //settings page
-    Route::get('/settings' , [SettingController::class, 'index'])->name('settings');
-    Route::put('/profile/update' , [SettingController::class, 'update'])->name('profile.update');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     // User Settings & Other Views
     Route::view('user/settings', 'user.settings')->name('user.settings');
