@@ -105,7 +105,7 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     })->name('logout');
 
     //the notification views and logic
-    Route::get('/notifications', [NotificationController::class, 'getUnread'])->name('notifications.index');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 //    Route::get('notifications/unread', [NotificationController::class, 'getUnread']);
     Route::get('/notifications/get-unread', [NotificationController::class, 'getUnread']);
     Route::post('/notifications/mark-as-seen', [NotificationController::class, 'markAsSeen']);

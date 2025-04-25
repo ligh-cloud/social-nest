@@ -15,7 +15,10 @@ class NotificationController extends Controller
         $user = auth()->user();
         $notifications = $user->notifications()->paginate(15);
 
-        return view('notifications.index', compact('notifications'));
+
+        $user->unreadNotifications->markAsRead();
+
+        return view('notifications.index', compact('notifications' , 'user'));
     }
 
     /**
