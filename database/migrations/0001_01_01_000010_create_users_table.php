@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('facebook_id')->nullable();
             $table->string('password');
             $table->string('bio')->default('nothing');
-            $table->string('profile_photo_path')->default('images/default.jpeg');
+            $table->string('profile_photo_path')->default('profile-photos/default.jpg');
             $table->foreignId('role_id')->constrained()->onDelete('cascade')->default(2);
             $table->boolean('archived')->default(false);
             $table->rememberToken();
