@@ -49,24 +49,45 @@
                     <div id="profile">
                         <h3 class="text-lg font-semibold mb-4">Profile Information</h3>
 
-                        <div class="flex items-center mb-6">
-                            <div class="relative mr-4">
-                                <img src="{{ asset('storage/profile/profile.jpg') }}" alt="User Profile" class="w-24 h-24 rounded-full object-cover">
-                                <button class="absolute bottom-0 right-0 bg-blue-500 w-8 h-8 rounded-full flex items-center justify-center text-white">
-                                    <i class="fas fa-camera"></i>
-                                </button>
-                            </div>
-                            <div>
-                                <h4 class="font-medium">Sarah Johnson</h4>
-                                <p class="text-gray-500 text-sm">Member since January 2023</p>
-                            </div>
-                        </div>
 
-                        <form>
+
+                        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="flex items-center mb-6">
+                                <div class="relative mr-4 w-24 h-24">
+                                    <img src="{{ asset('storage/profile/profile.jpg') }}" alt="User Profile" class="w-24 h-24 rounded-full object-cover">
+
+                                    <!-- File Input (hidden) -->
+                                    <input
+                                        type="file"
+                                        name="image"
+                                        id="profileImage"
+                                        class="absolute inset-0 opacity-0 cursor-pointer"
+                                        accept="image/*"
+                                    >
+
+                                    <!-- Camera Button Overlay -->
+                                    <label
+                                        for="profileImage"
+                                        class="absolute bottom-0 right-0 bg-blue-500 w-8 h-8 rounded-full flex items-center justify-center text-white hover:bg-blue-600 cursor-pointer shadow-md"
+                                        title="Change Profile Picture"
+                                    >
+                                        <i class="fas fa-camera"></i>
+                                    </label>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">{{ $user->name }}</h4>
+                                    <p class="text-gray-500 text-sm">Member since {{ $user->created_at->format('F Y') }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Other form fields -->
                             <div class="grid md:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label for="firstname" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                                    <input type="text" id="firstname" name="firstname" value="Sarah" class="w-full px-3 py-2 border rounded-md">
+                                    <input type="text" id="firstname" name="firstname" value="{{ $user->name }}" class="w-full px-3 py-2 border rounded-md">
                                 </div>
                                 <div>
                                     <label for="lastname" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
@@ -76,7 +97,7 @@
 
                             <div class="mb-4">
                                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                                <input type="email" id="email" name="email" value="sarah.johnson@example.com" class="w-full px-3 py-2 border rounded-md">
+                                <input type="email" id="email" disabled value="{{ $user->email }}" class="w-full px-3 py-2 border rounded-md">
                             </div>
 
                             <div class="mb-4">
@@ -100,6 +121,7 @@
                                 </button>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>

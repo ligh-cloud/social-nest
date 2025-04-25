@@ -5,6 +5,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SavedController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -59,7 +60,11 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::view('/memories', 'memories')->name('memories');
     Route::view('/pages', 'pages')->name('pages');
     Route::view('/events', 'events')->name('events');
-    Route::view('/settings', 'settings')->name('settings');
+
+
+    //settings page
+    Route::get('/settings' , [SettingController::class, 'index'])->name('settings');
+    Route::put('/profile/update' , [SettingController::class, 'update'])->name('profile.update');
 
     // User Settings & Other Views
     Route::view('user/settings', 'user.settings')->name('user.settings');
