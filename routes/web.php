@@ -85,6 +85,13 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::post('/posts/{post}/save', [SavedController::class, 'store'])->name('saved.store');
     Route::delete('/posts/{post}/unsave', [SavedController::class, 'destroy'])->name('saved.destroy');
 
+    // Notification routes
+    Route::get('/notifications/unread', 'NotificationController@getUnread');
+    Route::post('/notifications/mark-as-seen', 'NotificationController@markAsSeen');
+    Route::post('/notifications/mark-all-as-read', 'NotificationController@markAllAsRead');
+    Route::post('/notifications/{id}/toggle-read', 'NotificationController@toggleRead');
+    Route::get('/notifications', 'NotificationController@index')->name('notifications.index');
+
     //comments system
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
@@ -95,7 +102,8 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     })->name('logout');
 
     //the notification views and logic
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications', [NotificationController::class, 'getUnread'])->name('notifications.index');
+//    Route::get('notifications/unread', [NotificationController::class, 'getUnread']);
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markOneAsRead'])->name('notifications.markOneAsRead');
 });

@@ -34,7 +34,6 @@ class PostController extends Controller
 
         $imagePath = null;
 
-
         if ($request->hasFile('media')) {
             $imagePath = $request->file('media')->store('posts', 'public');
         }
@@ -46,16 +45,30 @@ class PostController extends Controller
             'privacy' => $request->privacy,
         ]);
 
+        // Check privacy
         if ($post->privacy === 'friends' || $post->privacy === 'public') {
-            $friends = Auth::user()->friends();
+            $friends = Auth::user()->friend;
 
+            // Debugging: Ensure we have friends
+            if ($friends->isEmpty()) {
+                \Log::info('No friends found for user: ' . Auth::id());
+            } else {
+                \Log::info('Friends found for user: ' . Auth::id());
+            }
+
+            // Loop through the friends
             foreach ($friends as $friend) {
+                // Debugging: Check if we are notifying the friend
+                \Log::info('Notifying friend ID: ' . $friend->id);
+
+                // Send the notification
                 $friend->notify(new FriendPosted($post));
             }
         }
 
         return redirect()->back()->with('success', 'Post created.');
     }
+
 
     public function show(Post $post)
     {

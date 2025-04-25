@@ -208,28 +208,14 @@
     </span>
                 </button>
 
+
                 <!-- Notification Dropdown -->
                 <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50 hidden">
                     <div class="py-2 px-3 bg-gray-100 border-b">
                         <h3 class="text-sm font-medium text-gray-700">Notifications</h3>
                     </div>
                     <div id="notification-list" class="max-h-64 overflow-y-auto">
-                        @forelse (Auth::user()->notifications()->take(5)->get() as $notification)
-                            <div class="flex items-center p-3 border-b hover:bg-gray-50 transition {{ $notification->read_at ? '' : 'bg-blue-50' }}">
-                                <div class="flex-shrink-0 mr-3">
-                                    <img src="{{ isset($notification->data['user_image']) ? asset('storage/' . $notification->data['user_image']) : '/images/default-avatar.png' }}" alt="" class="w-10 h-10 rounded-full">
-                                </div>
-                                <div class="flex-grow">
-                                    <p class="text-sm font-medium">{{ $notification->data['message'] ?? 'New notification' }}</p>
-
-                                    <p class="text-xs text-gray-500 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="p-4 text-center text-gray-500 text-sm">
-                                No notifications yet
-                            </div>
-                        @endforelse
+                        <!-- Notifications will be loaded here via AJAX -->
                     </div>
                     <div class="p-2 bg-gray-50 border-t text-center">
                         <a href="{{ route('notifications.index') }}" class="text-sm text-blue-500 hover:underline">View all notifications</a>
@@ -247,69 +233,214 @@
 <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/laravel-echo/dist/echo.iife.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const userId = document.querySelector('meta[name="user-id"]')?.getAttribute('content');
 
-        if (userId && window.Echo) {
-            // Listen for notifications on the private channel
-            window.Echo.private(`App.Models.User.${userId}`)
-                .notification((notification) => {
-                    console.log('Received notification:', notification);
-                    displayNotification(notification);
-                    updateNotificationCounter();
+    document.addEventListener('DOMContentLoaded', function() {
+        const notificationToggle = document.getElementById('notification-toggle');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+        const notificationCounter = document.getElementById('notification-counter');
+        const notificationList = document.getElementById('notification-list');
+
+        // Check for new notifications every 30 seconds
+        const notificationCheckInterval = 30000;
+        let notificationTimer;
+
+        // Initialize notification system
+        function initNotificationSystem() {
+            loadNotifications();
+            startNotificationTimer();
+
+            // Setup dropdown toggle
+            if (notificationToggle && notificationDropdown) {
+                notificationToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle('hidden');
+                    if (!notificationDropdown.classList.contains('hidden')) {
+                        markNotificationsAsSeen();
+                    }
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!notificationToggle.contains(event.target) &&
+                        !notificationDropdown.contains(event.target)) {
+                        notificationDropdown.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        // Start the timer for periodic checks
+        function startNotificationTimer() {
+            notificationTimer = setTimeout(function() {
+                checkNewNotifications();
+                startNotificationTimer();
+            }, notificationCheckInterval);
+        }
+
+        // Load notifications via AJAX
+        function loadNotifications() {
+            fetch('/notifications/get-unread')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    updateNotificationList(data.notifications);
+                    updateCounter(data.notifications.length);
+                })
+                .catch(error => {
+                    console.error('Error loading notifications:', error);
+                    showErrorInDropdown('Failed to load notifications');
                 });
         }
 
-        // Toggle notification dropdown
-        const notificationToggle = document.getElementById('notification-toggle');
-        const notificationDropdown = document.getElementById('notification-dropdown');
+        // Check for new notifications
+        function checkNewNotifications() {
+            fetch('/notifications')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.notifications.length > 0) {
+                        updateNotificationList(data.notifications);
+                        updateCounter(data.notifications.length);
 
-        if (notificationToggle && notificationDropdown) {
-            notificationToggle.addEventListener('click', function () {
-                notificationDropdown.classList.toggle('hidden');
-                if (!notificationDropdown.classList.contains('hidden')) {
-                    markNotificationsAsRead();
-                }
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function (event) {
-                if (!notificationToggle.contains(event.target) && !notificationDropdown.contains(event.target)) {
-                    notificationDropdown.classList.add('hidden');
-                }
-            });
+                        if (!document.hasFocus()) {
+                            showDesktopNotification(data.notifications[0]);
+                        }
+                    }
+                })
+                .catch(error => console.error('Error checking notifications:', error));
         }
 
-        // Display a new notification
-        function displayNotification(notification) {
-            const container = document.getElementById('notification-list');
-            if (!container) return;
+        // Update the notification list in the dropdown
+        function updateNotificationList(notifications) {
+            if (!notificationList) return;
 
-            const notifElement = document.createElement('div');
-            notifElement.className = `flex items-center p-3 border-b hover:bg-gray-50 transition ${notification.read_at ? '' : 'bg-blue-50'}`;
-            const userImagePath = notification.user_image ? `/storage/${notification.user_image}` : '/images/default-avatar.png';
-            const timeAgo = formatTimeAgo(new Date(notification.created_at));
+            notificationList.innerHTML = '';
 
-            notifElement.innerHTML = `
+            if (notifications.length === 0) {
+                notificationList.innerHTML = `
+                <div class="p-4 text-center text-gray-500 text-sm">
+                    No notifications yet
+                </div>
+            `;
+                return;
+            }
+
+            notifications.forEach(notification => {
+                const notifElement = document.createElement('div');
+                notifElement.className = `flex items-center p-3 border-b hover:bg-gray-50 transition ${notification.read_at ? '' : 'bg-blue-50'}`;
+
+                const userImagePath = notification.data.user_image ?
+                    `/storage/${notification.data.user_image}` :
+                    '/images/default-avatar.png';
+
+                const timeAgo = formatTimeAgo(new Date(notification.created_at));
+
+                notifElement.innerHTML = `
                 <div class="flex-shrink-0 mr-3">
                     <img src="${userImagePath}" alt="" class="w-10 h-10 rounded-full">
                 </div>
                 <div class="flex-grow">
-                    <p class="text-sm font-medium">${notification.message}</p>
-                    <a href="/posts/${notification.post_id}" class="text-xs text-blue-500 hover:underline">View post</a>
+                    <p class="text-sm font-medium">${notification.data.message}</p>
                     <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
                 </div>
             `;
-            container.insertBefore(notifElement, container.firstChild);
+
+                // Add click handler to mark individual notification as read
+                notifElement.addEventListener('click', () => {
+                    markNotificationAsRead(notification.id);
+                    notifElement.classList.remove('bg-blue-50');
+                });
+
+                notificationList.appendChild(notifElement);
+            });
         }
 
-        // Update notification counter
-        function updateNotificationCounter() {
-            const counter = document.getElementById('notification-counter');
-            if (counter) {
-                const currentCount = parseInt(counter.textContent || '0');
-                counter.textContent = currentCount + 1;
-                counter.classList.remove('hidden');
+        // Update the notification counter
+        function updateCounter(count) {
+            if (!notificationCounter) return;
+
+            if (count > 0) {
+                notificationCounter.textContent = count;
+                notificationCounter.classList.remove('hidden');
+            } else {
+                notificationCounter.classList.add('hidden');
+            }
+        }
+
+        // Mark notifications as seen (when dropdown is opened)
+        function markNotificationsAsSeen() {
+            fetch('/notifications/mark-as-seen', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to mark as seen');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Update UI to show notifications as seen
+                        document.querySelectorAll('#notification-list .bg-blue-50').forEach(el => {
+                            el.classList.remove('bg-blue-50');
+                        });
+                        updateCounter(0);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Mark single notification as read
+        function markNotificationAsRead(notificationId) {
+            fetch(`/notifications/${notificationId}/mark-read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to mark as read');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        updateCounter(parseInt(notificationCounter.textContent) - 1);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Show desktop notification
+        function showDesktopNotification(notification) {
+            if (!('Notification' in window)) return;
+
+            if (Notification.permission === 'granted') {
+                new Notification('New Notification', {
+                    body: notification.data.message,
+                    icon: notification.data.user_image ?
+                        `/storage/${notification.data.user_image}` :
+                        '/images/default-avatar.png'
+                });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification('New Notification', {
+                            body: notification.data.message,
+                            icon: notification.data.user_image ?
+                                `/storage/${notification.data.user_image}` :
+                                '/images/default-avatar.png'
+                        });
+                    }
+                });
             }
         }
 
@@ -334,15 +465,18 @@
             return "just now";
         }
 
-        // Mark notifications as read (via fetch)
-        function markNotificationsAsRead() {
-            fetch('/notifications/mark-as-read', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                }
-            });
+        // Show error message in dropdown
+        function showErrorInDropdown(message) {
+            if (!notificationList) return;
+            notificationList.innerHTML = `
+            <div class="p-4 text-center text-red-500 text-sm">
+                ${message}
+            </div>
+        `;
         }
+
+        // Initialize the notification system
+        initNotificationSystem();
     });
 </script>
+

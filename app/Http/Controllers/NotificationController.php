@@ -3,56 +3,87 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class NotificationController extends Controller
 {
     /**
      * Get all notifications for the authenticated user
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|object
      */
     public function index()
     {
-        // Paginate notifications (10 per page)
-        $notifications = Auth::user()->notifications()->paginate(10);
+        $user = auth()->user();
+        $notifications = $user->notifications()->paginate(15);
 
-        // Return the view with notifications
         return view('notifications.index', compact('notifications'));
     }
 
     /**
-     * Mark all unread notifications as read
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Get unread notifications for the authenticated user
      */
-    public function markAsRead()
+    public function getUnread()
     {
-        // Efficiently mark unread notifications as read in the database
-        Auth::user()->unreadNotifications()->update(['read_at' => now()]);
+        $notifications = auth()->user()->unreadNotifications;
 
-        // Return a success response
+        return response()->json([
+            'notifications' => $notifications
+        ]);
+    }
+
+    /**
+     * Mark all notifications as seen
+     * (Different from read - seen means user has viewed them in the dropdown)
+     */
+    public function markAsSeen()
+    {
+        $user = auth()->user();
+
+        // We're not marking them as read, just updating a "seen_at" timestamp
+        // so we know user has seen them in the dropdown
+        foreach ($user->unreadNotifications as $notification) {
+            $notification->data = array_merge($notification->data, ['seen_at' => now()]);
+            $notification->save();
+        }
+
         return response()->json(['success' => true]);
     }
 
     /**
-     * Mark a specific notification as read
-     *
-     * @param  string  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * Mark all notifications as read
      */
-    public function markOneAsRead($id)
+    public function markAllAsRead()
     {
-        // Find the specific notification by ID
-        $notification = Auth::user()->notifications()->where('id', $id)->first();
+        $user = auth()->user();
+        $user->unreadNotifications->markAsRead();
 
-        // If notification exists, mark as read
-        if ($notification) {
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Toggle read status of a specific notification
+     */
+    public function toggleRead($id)
+    {
+        $user = auth()->user();
+        $notification = $user->notifications()->findOrFail($id);
+
+        if ($notification->read_at) {
+            // Mark as unread
+            $notification->read_at = null;
+            $notification->save();
+
+            return response()->json([
+                'success' => true,
+                'read' => false
+            ]);
+        } else {
+            // Mark as read
             $notification->markAsRead();
-            return redirect()->back()->with('success', 'Notification marked as read');
-        }
 
-        // If notification doesn't exist, return an error message
-        return redirect()->back()->with('error', 'Notification not found');
+            return response()->json([
+                'success' => true,
+                'read' => true
+            ]);
+        }
     }
 }
