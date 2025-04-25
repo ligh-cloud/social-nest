@@ -51,6 +51,7 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     // Home & Posts
     Route::get('/home', [\App\Http\Controllers\PostController::class, 'index'])->name('home');
     Route::post('/posts', [\App\Http\Controllers\PostController::class, 'store'])->name('posts.store');
+    Route::get('/posts/{post}', [App\Http\Controllers\PostController::class, 'showPost'])->name('posts.show');
     Route::post('/post/like', [LikeController::class, 'store'])->name('posts.like');
 
     // Static Pages
@@ -65,6 +66,7 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::view('/notifications', 'user.notification')->name('notifications');
     Route::view('/posts/saved', 'user.saved')->name('posts.saved');
     Route::view('/posts/watch', 'user.watch')->name('posts.watch');
+
 
     // Friends System
     Route::get('/friends', [FriendshipController::class, 'index'])->name('friends');
@@ -85,6 +87,7 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::post('/posts/{post}/save', [SavedController::class, 'store'])->name('saved.store');
     Route::delete('/posts/{post}/unsave', [SavedController::class, 'destroy'])->name('saved.destroy');
 
+
     // Notification routes
     Route::get('/notifications/unread', 'NotificationController@getUnread');
     Route::post('/notifications/mark-as-seen', 'NotificationController@markAsSeen');
@@ -104,8 +107,10 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     //the notification views and logic
     Route::get('/notifications', [NotificationController::class, 'getUnread'])->name('notifications.index');
 //    Route::get('notifications/unread', [NotificationController::class, 'getUnread']);
-    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markOneAsRead'])->name('notifications.markOneAsRead');
+    Route::get('/notifications/get-unread', [NotificationController::class, 'getUnread']);
+    Route::post('/notifications/mark-as-seen', [NotificationController::class, 'markAsSeen']);
+//    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+//    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markOneAsRead'])->name('notifications.markOneAsRead');
 });
 
 

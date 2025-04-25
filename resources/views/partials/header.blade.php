@@ -240,14 +240,19 @@
         const notificationCounter = document.getElementById('notification-counter');
         const notificationList = document.getElementById('notification-list');
 
-        // Check for new notifications every 30 seconds
+        // Check for new notifications every 30 seconds (for backend polling)
         const notificationCheckInterval = 30000;
         let notificationTimer;
+
+        // Add a separate interval for updating the notification list UI every second
+        const notificationUIUpdateInterval = 1000; // 1 second
+        let notificationUITimer;
 
         // Initialize notification system
         function initNotificationSystem() {
             loadNotifications();
             startNotificationTimer();
+            startNotificationUITimer(); // Start the new UI update timer
 
             // Setup dropdown toggle
             if (notificationToggle && notificationDropdown) {
@@ -269,12 +274,19 @@
             }
         }
 
-        // Start the timer for periodic checks
+        // Start the timer for periodic checks with the server
         function startNotificationTimer() {
             notificationTimer = setTimeout(function() {
                 checkNewNotifications();
                 startNotificationTimer();
             }, notificationCheckInterval);
+        }
+
+        // Start the timer for updating the notification UI more frequently
+        function startNotificationUITimer() {
+            notificationUITimer = setInterval(function() {
+                loadNotifications(); // This will update the UI without necessarily making heavy server requests
+            }, notificationUIUpdateInterval);
         }
 
         // Load notifications via AJAX
@@ -333,18 +345,34 @@
                 const notifElement = document.createElement('div');
                 notifElement.className = `flex items-center p-3 border-b hover:bg-gray-50 transition ${notification.read_at ? '' : 'bg-blue-50'}`;
 
-                const userImagePath = notification.data.user_image ?
-                    `/storage/${notification.data.user_image}` :
-                    '/images/default-avatar.png';
+                // Parse the notification data
+                const data = typeof notification.data === 'string' ?
+                    JSON.parse(notification.data) :
+                    notification.data;
 
-                const timeAgo = formatTimeAgo(new Date(notification.created_at));
+                // Create a meaningful message based on notification type
+                let message = '';
+                let userImagePath = '/images/default-avatar.png';
+
+                if (notification.type.includes('FriendPosted')) {
+                    message = data.text ? `New post: ${data.text.substring(0, 30)}${data.text.length > 30 ? '...' : ''}` : 'A friend posted something new';
+                    userImagePath = data.image ? `/storage/${data.image}` : userImagePath;
+                } else {
+                    // Fallback for other notification types
+                    message = data.message || 'New notification';
+                    userImagePath = data.user_image ? `/storage/${data.user_image}` : userImagePath;
+                }
+
+                const timeAgo = notification.created_at ?
+                    formatTimeAgo(new Date(notification.created_at)) :
+                    'just now';
 
                 notifElement.innerHTML = `
                 <div class="flex-shrink-0 mr-3">
                     <img src="${userImagePath}" alt="" class="w-10 h-10 rounded-full">
                 </div>
                 <div class="flex-grow">
-                    <p class="text-sm font-medium">${notification.data.message}</p>
+                    <p class="text-sm font-medium">${message}</p>
                     <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
                 </div>
             `;
@@ -353,6 +381,11 @@
                 notifElement.addEventListener('click', () => {
                     markNotificationAsRead(notification.id);
                     notifElement.classList.remove('bg-blue-50');
+
+                    // Redirect based on notification type
+                    if (notification.type.includes('FriendPosted') && data.post_id) {
+                        window.location.href = `/posts/${data.post_id}`;
+                    }
                 });
 
                 notificationList.appendChild(notifElement);
@@ -475,7 +508,12 @@
         `;
         }
 
-        // Initialize the notification system
+        window.addEventListener('beforeunload', function() {
+            clearTimeout(notificationTimer);
+            clearInterval(notificationUITimer);
+        });
+
+
         initNotificationSystem();
     });
 </script>

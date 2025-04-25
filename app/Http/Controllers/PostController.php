@@ -74,6 +74,22 @@ class PostController extends Controller
     {
         return view('posts.show', compact('post'));
     }
+    public function showPost($id)
+    {
+        $user = Auth::user();
+        $post = Post::with(['user', 'likes', 'comments.user'])->findOrFail($id);
+
+        // Get the comments for this post, sorted by newest first
+        $comments = $post->comments()->with('user')->latest()->get();
+
+        // Check if the current user has liked this post
+        $userLiked = false;
+        if (auth()->check()) {
+            $userLiked = $post->likes()->where('user_id', auth()->id())->exists();
+        }
+
+        return view('posts.show', compact('post', 'comments', 'userLiked' , 'user'));
+    }
 
     public function edit(Post $post)
     {
