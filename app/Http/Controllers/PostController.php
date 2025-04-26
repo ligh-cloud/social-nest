@@ -136,16 +136,16 @@ class PostController extends Controller
     public function showVideos()
     {
         $videoExtensions = ['mp4', 'mov', 'avi', 'mkv'];
-
+$user = Auth::user();
         $videoPosts = Post::whereNotNull('image')
         ->where(function($query) use ($videoExtensions) {
             foreach ($videoExtensions as $ext) {
                 $query->orWhere('image', 'like', "%.{$ext}");
             }
         })
-            ->latest()
+            ->inRandomOrder()
             ->get();
 
-        return view('videos.index', compact('videoPosts'));
+        return view('user.video', compact('videoPosts' , 'user'));
     }
 }

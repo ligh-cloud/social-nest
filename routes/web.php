@@ -56,7 +56,7 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::post('/post/like', [LikeController::class, 'store'])->name('posts.like');
 
     // Static Pages
-    Route::view('/watch', 'watch')->name('watch');
+    Route::get('/watch', [\App\Http\Controllers\PostController::class , 'showVideos'])->name('watch');
     Route::view('/memories', 'memories')->name('memories');
     Route::view('/pages', 'pages')->name('pages');
     Route::view('/events', 'events')->name('events');
