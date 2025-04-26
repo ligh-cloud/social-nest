@@ -50,6 +50,7 @@ class AdminController extends Controller
      */
     public function banUser(Request $request, $userId)
     {
+        $this->authorize('admin-access');
         try {
             $user = User::findOrFail($userId);
             $user->delete(); // Soft delete for ban
@@ -74,6 +75,7 @@ class AdminController extends Controller
      */
     public function unbanUser(Request $request, $userId)
     {
+        $this->authorize('admin-access');
         try {
             $user = User::withTrashed()->findOrFail($userId);
             $user->restore();
@@ -98,6 +100,7 @@ class AdminController extends Controller
      */
     public function suspendUser(Request $request, $userId)
     {
+        $this->authorize('admin-access');
         try {
             $user = User::findOrFail($userId);
             $days = $request->input('days', 7); // Default 7 days suspension
@@ -125,6 +128,7 @@ class AdminController extends Controller
      */
     public function unsuspendUser(Request $request, $userId)
     {
+        $this->authorize('admin-access');
         try {
             $user = User::findOrFail($userId);
             $user->update([
@@ -151,6 +155,7 @@ class AdminController extends Controller
      */
     public function getUserStats()
     {
+        $this->authorize('admin-access');
         try {
             $stats = [
                 'total_users' => User::count(),
@@ -180,6 +185,7 @@ class AdminController extends Controller
      */
     public function getPostStats()
     {
+        $this->authorize('admin-access');
         try {
             $stats = [
                 'total_posts' => Post::count(),
@@ -207,6 +213,7 @@ class AdminController extends Controller
      */
     public function archivePost(Request $request, Post $post)
     {
+        $this->authorize('admin-access');
         try {
             $post->update(['archived' => true]);
 
@@ -230,6 +237,7 @@ class AdminController extends Controller
      */
     public function unarchivePost(Request $request, Post $post)
     {
+        $this->authorize('admin-access');
         try {
             $post->update(['archived' => false]);
 
@@ -253,6 +261,7 @@ class AdminController extends Controller
      */
     public function deletePost(Request $request, $postId)
     {
+        $this->authorize('admin-access');
         try {
             $post = Post::findOrFail($postId);
             $post->delete(); // Soft delete the post

@@ -9,12 +9,23 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\FriendPosted;
 class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $posts = Post::latest()
+        $perPage = $request->input('per_page', 5);
+        $page = $request->input('page', 1);
+
+        $posts = Post::with(['user', 'comments.user'])
+            ->withCount('comments')
             ->withCount('likes')
-            ->get();
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+
+        if ($request->ajax()) {
+            $view = view('partials.posts', compact('posts', 'user'))->render();
+            return response()->json(['html' => $view]);
+        }
 
         return view('user.home', compact('posts', 'user'));
     }
