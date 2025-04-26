@@ -116,6 +116,13 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::post('/notifications/mark-as-seen', [NotificationController::class, 'markAsSeen']);
 //    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 //    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markOneAsRead'])->name('notifications.markOneAsRead');
+
+
+
+    //saving posts system
+    Route::get('/saved-posts', [SavedController::class, 'index'])->name('saved-posts.index');
+    Route::post('/posts/{post}/save', [SavedController::class, 'save'])->name('posts.save');
+    Route::delete('/posts/{post}/unsave', [SavedController::class, 'unsave'])->name('posts.unsave');
 });
 
 

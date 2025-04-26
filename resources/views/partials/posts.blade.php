@@ -53,12 +53,16 @@
                             </svg>
                             <span>Comment ({{ $post->comments_count ?? 0 }})</span>
                         </button>
-                        <button class="flex items-center hover:text-blue-500 px-2 py-1 rounded transition">
+                            <form action="posts/{{$post->id}}/save" method="post" >
+                                @csrf
+                       <button class="flex items-center hover:text-blue-500 px-2 py-1 rounded transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5v14l7-5 7 5V5a2 2 0 00-2-2H7a2 2 0 00-2 2z" />
                             </svg>
+
                             <span>Save</span>
                         </button>
+                        </form>
 
 
                     </div>
