@@ -17,11 +17,10 @@ class AdminController extends Controller
     /**
      * Display admin dashboard
      */
-    public function __construct(){
-        $this->authorize('access' , Admin::class);
-    }
+
     public function index()
     {
+        $this->authorize('admin-access');
 
         // Fetch users with pagination
         $users = User::withTrashed()
