@@ -133,4 +133,19 @@ class PostController extends Controller
         $post->delete();
         return redirect()->route('posts.index')->with('success', 'Post deleted.');
     }
+    public function showVideos()
+    {
+        $videoExtensions = ['mp4', 'mov', 'avi', 'mkv'];
+
+        $videoPosts = Post::whereNotNull('image')
+        ->where(function($query) use ($videoExtensions) {
+            foreach ($videoExtensions as $ext) {
+                $query->orWhere('image', 'like', "%.{$ext}");
+            }
+        })
+            ->latest()
+            ->get();
+
+        return view('videos.index', compact('videoPosts'));
+    }
 }
