@@ -3,6 +3,25 @@
 @section('title', 'Home')
 
 @section('content')
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .fixed.top-4.right-4 {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        .fixed.top-4.right-4.fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+    </style>
     <!-- Main Content Container -->
     <div class="w-full lg:w-4/5 lg:ml-[20%]">
         <!-- Post Creation Form -->
@@ -269,6 +288,49 @@
                         loading = false;
                     });
             }
+
         });
+        let input = document.getElementById('media');
+
+        input.addEventListener('change', function() {
+            validateVideoSize(this, 20);
+        });
+
+        function validateVideoSize(input, maxSizeMB = 20) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to megabytes
+
+            if (fileSizeMB > maxSizeMB) {
+                // Create styled alert
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'fixed top-4 right-4 z-50 flex items-center p-4 max-w-xs bg-red-50 border-l-4 border-red-500 rounded-lg shadow-lg';
+                alertDiv.innerHTML = `
+            <div class="text-red-500 mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-medium text-red-800">File too large</p>
+                <p class="text-sm text-red-600">Please upload a file smaller than ${maxSizeMB}MB.</p>
+            </div>
+            <button class="ml-auto text-red-500 hover:text-red-700" onclick="this.parentElement.remove()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        `;
+
+                // Add to body and auto-remove after 5 seconds
+                document.body.appendChild(alertDiv);
+                input.value = ""; // Clear the input
+
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            }
+        }
     </script>
 @endpush

@@ -39,7 +39,7 @@ class PostController extends Controller
     {
         $request->validate([
             'text' => 'nullable|string',
-            'media' => 'nullable|image',
+            'media' => 'nullable|image|max:20480',
             'privacy' => 'required|in:public,friends,private'
         ]);
 
