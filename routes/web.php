@@ -172,7 +172,7 @@ Route::get('login/facebook/callback', [FacebookController::class, 'handleFaceboo
 | Extra
 |--------------------------------------------------------------------------
 */
-Route::get('/saved', fn() => 'this is the saved page')->name('saved');
+Route::get('/saved', [SavedController::class , 'savedPosts'])->name('saved');
 
 // Admin Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {

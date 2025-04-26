@@ -9,21 +9,28 @@ use Illuminate\Support\Facades\Auth;
 
 class SavedController extends Controller
 {
-    public function savedPosts(){
-        $savedPosts = Auth::user()->savedPosts()->user()->latest()->get();
-        return view('saved-posts', compact('savedPosts'));
-    }
+    public function savedPosts()
+    {
 
+        $user = Auth::user();
+        $savedPosts = Auth::user()->savedPosts()->latest()->paginate(10);
+        return view('user.saved-posts', compact('savedPosts' , 'user'));
+    }
     public function save(Post $post)
     {
-        auth()->user()->savedPosts()->attach($post->id);
+        $user = Auth::user();
 
-        return redirect()->back()->with('success', 'Post saved successfully!');
+        // Check if the post is already saved
+        if (!$user->savedPosts->contains($post->id)) {
+            $user->savedPosts()->attach($post->id);
+            return redirect()->back()->with('success', 'Post saved successfully!');
+        }
+
+        return redirect()->back()->with('info', 'Post was already saved.');
     }
-
     public function unsave(Post $post)
     {
-        auth()->user()->savedPosts()->detach($post->id);
+        auth()->user()->savedPosts()->attach($post->id);
 
         return redirect()->back()->with('success', 'Post unsaved successfully!');
     }

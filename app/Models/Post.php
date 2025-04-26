@@ -43,6 +43,12 @@ class Post extends Model
     }
     public function savedByUsers()
     {
-        return $this->belongsToMany(User::class, 'saved_posts');
+        return $this->belongsToMany(User::class, 'saveds');
     }
+
+    public function isSavedBy($user)
+    {
+        return $user->savedPosts->contains($this->id);
+    }
+
 }
