@@ -8,14 +8,21 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Policies\Admin;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AdminController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display admin dashboard
      */
+    public function __construct(){
+        $this->authorize('access' , Admin::class);
+    }
     public function index()
     {
+
         // Fetch users with pagination
         $users = User::withTrashed()
             ->latest()
@@ -26,7 +33,7 @@ class AdminController extends Controller
             ->withTrashed() // Include soft-deleted posts
             ->latest()
             ->paginate(10);
-        
+
         // Get statistics
         $stats = [
             'total_users' => User::count(),
