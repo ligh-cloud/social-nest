@@ -140,6 +140,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Post::class, 'saveds');
     }
 
-
+    public function events(){
+        return $this->hasMany(Event::class);
+    }
 
 }

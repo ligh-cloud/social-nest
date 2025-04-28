@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\EventCreatedNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -30,10 +31,7 @@ class Event extends Model
     /**
      * Get the notifications related to the event.
      */
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class);
-    }
+
 
     /**
      * Trigger a notification for the event.
@@ -42,5 +40,9 @@ class Event extends Model
     {
         // Example of sending a notification when an event is created
         $user->notify(new EventCreatedNotification($this));
+    }
+    public function users()
+    {
+        $this->belongsTo(User::class);
     }
 }

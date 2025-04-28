@@ -85,6 +85,81 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        return view('events.show', compact('event'));
+
+        $user = $event->user;
+
+
+        return view('events.show', compact('event', 'user'));
+    }
+
+    /**
+     * Show a form to edit an existing event.
+     *
+     * @param \App\Models\Event $event
+     * @return \Illuminate\View\View
+     */
+    public function edit(Event $event)
+    {
+        // Check if the authenticated user is the creator of the event
+        if (Auth::id() !== $event->user_id) {
+            return redirect()->route('events.index')->with('error', 'You are not authorized to edit this event.');
+        }
+
+        return view('events.edit', compact('event'));
+    }
+
+    /**
+     * Update an existing event.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Event $event
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, Event $event)
+    {
+        // Check if the authenticated user is the creator of the event
+        if (Auth::id() !== $event->user_id) {
+            return redirect()->route('events.index')->with('error', 'You are not authorized to update this event.');
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'start_time' => 'required|date',
+            'end_time' => 'nullable|date|after:start_time', // Ensure end_time is nullable
+            'location' => 'required|string|max:255',
+        ]);
+
+        // Update the event
+        $event->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'location' => $request->location,
+        ]);
+
+        // Redirect to the event details page
+        return redirect()->route('events.show', $event)->with('success', 'Event updated successfully!');
+    }
+
+    /**
+     * Delete an existing event.
+     *
+     * @param \App\Models\Event $event
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(Event $event)
+    {
+        // Check if the authenticated user is the creator of the event
+        if (Auth::id() !== $event->user_id) {
+            return redirect()->route('events.index')->with('error', 'You are not authorized to delete this event.');
+        }
+
+        // Delete the event
+        $event->delete();
+
+        // Redirect to events index
+        return redirect()->route('events.index')->with('success', 'Event deleted successfully!');
     }
 }
