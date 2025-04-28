@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SavedController;
 use App\Http\Controllers\SettingController;
@@ -117,7 +118,14 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
 //    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 //    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markOneAsRead'])->name('notifications.markOneAsRead');
 
-
+//events routes system :
+    Route::get('/events', [EventController::class, 'index'])->name('events');
+    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
 
     //saving posts system
     Route::get('/saved-posts', [SavedController::class, 'index'])->name('saved-posts.index');
