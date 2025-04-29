@@ -292,7 +292,7 @@
                 .catch(error => console.error('Error loading notifications:', error));
         }
 
-        // Update the notification list
+// Update the notification list
         function updateNotificationList(notifications) {
             notificationList.innerHTML = notifications.length === 0 ?
                 '<div class="p-4 text-center text-gray-500 text-sm">No notifications yet</div>' : '';
@@ -301,27 +301,50 @@
                 const notifElement = document.createElement('div');
                 notifElement.className = `flex items-center p-3 border-b hover:bg-gray-50 transition ${notification.read_at ? '' : 'bg-blue-50'}`;
 
-                // Parse notification data
-                const data = typeof notification.data === 'string' ? JSON.parse(notification.data) : notification.data;
+                // Parse the notification data
+                let data;
+                try {
+                    data = typeof notification.data === 'string' ? JSON.parse(notification.data) : notification.data;
+                } catch (e) {
+                    console.error('Error parsing notification data:', e);
+                    data = {};
+                }
 
-                // Create message and get image
-                let message = data.message || 'New notification';
-                let userImagePath = data.user_image ? `/storage/${data.user_image}` : '/images/default-avatar.png';
+                // Determine icon and action link based on notification type
+                let icon = 'fas fa-bell'; // default icon
+                let actionLink = '#';
+
+                if (data.type === 'friend_post') {
+                    icon = 'fas fa-newspaper';
+                    actionLink = `/posts/${data.post_id || ''}`;
+                } else if (data.type === 'friend_request') {
+                    icon = 'fas fa-user-friends';
+                    actionLink = `/friends/requests`;
+                } else if (data.type === 'post_like') {
+                    icon = 'fas fa-heart';
+                    actionLink = `/posts/${data.post_id || ''}`;
+                } else if (data.type === 'post_comment') {
+                    icon = 'fas fa-comment';
+                    actionLink = `/posts/${data.post_id || ''}#comment-${data.comment_id || ''}`;
+                } else if (data.type === 'new_message') {
+                    icon = 'fas fa-envelope';
+                    actionLink = `/messages/${data.conversation_id || ''}`;
+                }
 
                 notifElement.innerHTML = `
-                <div class="flex-shrink-0 mr-3">
-                    <img src="${userImagePath}" alt="" class="w-10 h-10 rounded-full">
-                </div>
-                <div class="flex-grow">
-                    <p class="text-sm font-medium">${message}</p>
-                    <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.created_at))}</p>
-                </div>`;
+            <div class="flex-shrink-0 mr-3">
+                <i class="${icon} text-blue-500 text-xl w-6 text-center"></i>
+            </div>
+            <div class="flex-grow">
+                <p class="text-sm font-medium">${data.message || 'New notification'}</p>
+                <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.created_at))}</p>
+            </div>`;
 
+                // Add click event to mark as read and navigate
                 notifElement.addEventListener('click', () => {
                     markNotificationAsRead(notification.id);
-                    // Handle click based on notification type
-                    if (notification.type && notification.type.includes('FriendPosted') && data.post_id) {
-                        window.location.href = `/posts/${data.post_id}`;
+                    if (actionLink !== '#') {
+                        window.location.href = actionLink;
                     }
                 });
 

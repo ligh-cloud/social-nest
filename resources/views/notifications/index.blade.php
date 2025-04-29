@@ -14,12 +14,18 @@
 
                             <div class="flex-grow">
                                 <p class="text-sm font-medium text-gray-800">
-                                    {{ $notification->data['message'] ?? 'New notification' }}
+                                    <!-- Make the notification message clickable -->
+                                    <a href="{{ route('posts.show', ['post' => $notification->data['post_id']]) }}" class="hover:text-blue-600">
+                                        {{ $notification->data['message'] ?? 'New notification' }}
+                                    </a>
                                 </p>
+
                                 <p class="text-xs text-gray-500 mt-1">
                                     {{ $notification->created_at->diffForHumans() }}
                                 </p>
                             </div>
+
+                            <!-- Read Status Indicator -->
                             @if(!$notification->read_at)
                                 <span class="ml-2 flex-shrink-0 inline-block h-2 w-2 rounded-full bg-blue-500"></span>
                             @endif
@@ -32,6 +38,7 @@
                 @endforelse
             </div>
 
+            <!-- Pagination Controls -->
             @if($notifications->hasPages())
                 <div class="p-4 border-t">
                     {{ $notifications->links() }}
