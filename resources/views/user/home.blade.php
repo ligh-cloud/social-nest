@@ -26,7 +26,7 @@
     <div class="w-full lg:w-4/5 lg:ml-[20%]">
         <!-- Post Creation Form -->
         <div class="bg-white rounded-lg shadow-sm mb-4">
-            <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('posts.store') }}" method="POST"  enctype="multipart/form-data">
                 @csrf
                 <div class="p-4">
                     <!-- User Info and Text Input -->
@@ -82,7 +82,9 @@
         </div>
 
         <!-- Posts Container -->
-
+        <div id="post-container" class="space-y-4">
+            @include('partials.posts', ['posts' => $posts, 'user' => $user])
+        </div>
 
         <!-- Loading indicator -->
         <div id="loading" class="text-center p-4 hidden">

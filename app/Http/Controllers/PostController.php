@@ -40,23 +40,31 @@ class PostController extends Controller
     {
         $request->validate([
             'text' => 'nullable|string',
-            'media' => 'nullable|image|max:20480',
+            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,wmv|max:20200',
             'privacy' => 'required|in:public,friends,private'
         ]);
 
         $imagePath = null;
 
         if ($request->hasFile('media')) {
-            $imagePath = $request->file('media')->store('posts', 'public');
+            try {
+                $imagePath = $request->file('media')->store('posts', 'public');
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Failed to upload media.');
+            }
         }
 
-        $post = Post::create([
-            'user_id' => Auth::id(),
-            'text' => $request->text,
-            'image' => $imagePath,
-            'privacy' => $request->privacy,
-        ]);
-
+        try {
+            $post = Post::create([
+                'user_id' => Auth::id(),
+                'text' => $request->text,
+                'image' => $imagePath,
+                'privacy' => $request->privacy,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Post creation failed: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to create post.');
+        }
         // Check privacy
         if ($post->privacy === 'friends' || $post->privacy === 'public') {
             $friends = Auth::user()->friend;

@@ -200,6 +200,29 @@
         </div>
     </div>
 </div>
+@if(session('success'))
+    <div class="mb-4 rounded-lg bg-green-100 border border-green-400 text-green-800 px-4 py-3 text-sm">
+        <strong>Success:</strong> {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="mb-4 rounded-lg bg-red-100 border border-red-400 text-red-800 px-4 py-3 text-sm">
+        <strong>Error:</strong> {{ session('error') }}
+    </div>
+@endif
+
+@if($errors->any())
+    <div class="mb-4 rounded-lg bg-red-100 border border-red-400 text-red-800 px-4 py-3 text-sm">
+        <strong>There were some errors:</strong>
+        <ul class="mt-2 list-disc list-inside text-sm">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 
 <!-- Scripts -->
 <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
