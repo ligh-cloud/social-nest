@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use SoftDeletes , Notifiable;
+    use SoftDeletes, Notifiable;
 
     protected $appends = ['likes_status'];
     protected $fillable = [
@@ -41,6 +41,7 @@ class Post extends Model
 
         return $this->likes()->where('user_id', $user->id)->exists();
     }
+
     public function savedByUsers()
     {
         return $this->belongsToMany(User::class, 'saveds');
