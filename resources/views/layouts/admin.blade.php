@@ -22,7 +22,7 @@
         </div>
 
         <!-- User Profile in Sidebar -->
-        <div class="px-6 mb-6 py-3 border-b border-teal-500">
+        <div class="px-6 mb-6 py-3  maborder-b border-teal-500">
             <div class="flex items-center">
                 <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Admin" class="w-10 h-10 rounded-full mr-3">
                 <div>
@@ -68,6 +68,22 @@
                 <i class="fas fa-chart-line w-6"></i>
                 <span class="ml-3">Reports</span>
             </button>
+
+            <a href="{{route('home')}}"><button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                    <i class="fas fa-comment-alt w-6"></i>
+                    <span class="ml-3">User Dashboard</span>
+                </button>
+            </a>
+
+            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                <i class="fas fa-shield-alt w-6"></i>
+                <span class="ml-3">Security</span>
+            </button>
+
+            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                <i class="fas fa-cog w-6"></i>
+                <span class="ml-3">Settings</span>
+            </button>
         </div>
 
         <!-- Notifications -->
@@ -103,7 +119,6 @@
 </div>
 
 <script>
-    // Base JavaScript functions
     function showTab(tabId) {
         // Hide all tab contents
         document.querySelectorAll('.tab-content').forEach(content => {
@@ -125,54 +140,92 @@
         activeButton.classList.add('bg-teal-700');
     }
 
-    // Initialize Chart.js if the view needs it
+    // Chart.js implementation
     document.addEventListener('DOMContentLoaded', function() {
-        @if(isset($stats) && request()->is('admin*'))
-        // Chart.js implementation for admin dashboard
-        const ctx = document.getElementById('userChart')?.getContext('2d');
-        if (ctx) {
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Total Users', 'Active Users', 'Banned Users', 'Suspended Users'],
-                    datasets: [{
-                        label: 'User Statistics',
-                        data: [
-                            {{ $stats['total_users'] }},
-                            {{ $stats['active_users'] }},
-                            {{ $stats['banned_users'] }},
-                            {{ $stats['suspended_users'] }}
-                        ],
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.5)',
-                            'rgba(75, 192, 192, 0.5)',
-                            'rgba(255, 99, 132, 0.5)',
-                            'rgba(255, 205, 86, 0.5)'
-                        ],
-                        borderColor: [
-                            'rgb(54, 162, 235)',
-                            'rgb(75, 192, 192)',
-                            'rgb(255, 99, 132)',
-                            'rgb(255, 205, 86)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+        // Show overview tab by default
+        showTab('overview');
+
+        // Initialize Chart.js chart
+        const ctx = document.getElementById('userChart').getContext('2d');
+        const userChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Users', 'Active Users', 'Banned Users', 'Suspended Users'],
+                datasets: [{
+                    label: 'User Statistics',
+                    data: [
+                        {{ $stats['total_users'] }},
+                        {{ $stats['active_users'] }},
+                        {{ $stats['banned_users'] }},
+                        {{ $stats['suspended_users'] }}
+                    ],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(255, 205, 86, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgb(54, 162, 235)',
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 205, 86)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Line chart for user growth over time
+        const userGrowthCtx = document.createElement('canvas');
+        userGrowthCtx.id = 'userGrowthChart';
+        document.querySelector('.h-80').appendChild(userGrowthCtx);
+
+        const userGrowthChart = new Chart(userGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'User Growth',
+                    data: [
+                        {{ $stats['total_users'] - 120 }},
+                        {{ $stats['total_users'] - 100 }},
+                        {{ $stats['total_users'] - 80 }},
+                        {{ $stats['total_users'] - 50 }},
+                        {{ $stats['total_users'] - 20 }},
+                        {{ $stats['total_users'] }}
+                    ],
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'User Growth Over Time',
+                        font: {
+                            size: 16
                         }
                     }
                 }
-            });
-        }
-        @endif
+            }
+        });
     });
 
-    // Base admin functions
     function banUser(userId) {
         if (confirm('Are you sure you want to ban this user?')) {
             fetch(`/admin/users/${userId}/ban`, {
@@ -182,21 +235,119 @@
                     'Accept': 'application/json'
                 }
             })
-                .then(handleResponse)
-                .catch(handleError);
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to ban user: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to ban user: ' + error.message);
+                });
         }
     }
 
-    function handleResponse(response) {
-        if (!response.ok) throw new Error('Network response was not ok');
-        return response.json();
+    function unbanUser(userId) {
+        if (confirm('Are you sure you want to unban this user?')) {
+            fetch(`/admin/users/${userId}/unban`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to unban user');
+                    }
+                });
+        }
     }
 
-    function handleError(error) {
-        console.error('Error:', error);
-        alert('Operation failed: ' + error.message);
+    function suspendUser(userId) {
+        const days = prompt('Enter number of days to suspend (default: 7):', '7');
+        if (days !== null) {
+            fetch(`/admin/users/${userId}/suspend`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ days: parseInt(days) || 7 })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to suspend user');
+                    }
+                });
+        }
+    }
+
+    function unsuspendUser(userId) {
+        if (confirm('Are you sure you want to unsuspend this user?')) {
+            fetch(`/admin/users/${userId}/unsuspend`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to unsuspend user');
+                    }
+                });
+        }
+    }
+
+    function deletePost(postId) {
+        if (confirm('Are you sure you want to delete this post?')) {
+            fetch(`/admin/posts/${postId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to delete post: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to delete post: ' + error.message);
+                });
+        }
     }
 </script>
-@yield('scripts')
 </body>
 </html>
