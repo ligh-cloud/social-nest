@@ -22,7 +22,7 @@
         </div>
 
         <!-- User Profile in Sidebar -->
-        <div class="px-6 mb-6 py-3 border-b border-teal-500">
+        <div class="px-6 mb-6 py-3  maborder-b border-teal-500">
             <div class="flex items-center">
                 <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Admin" class="w-10 h-10 rounded-full mr-3">
                 <div>
@@ -192,7 +192,40 @@
                         </div>
                     </div>
 
-
+                    <!-- Activity Section -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-4">Recent Activity</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                    <i class="fas fa-user-plus text-blue-500"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">New user registered</p>
+                                    <p class="text-xs text-gray-500">2 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-red-100 p-2 rounded-full mr-3">
+                                    <i class="fas fa-user-slash text-red-500"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">User banned for policy violation</p>
+                                    <p class="text-xs text-gray-500">4 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-green-100 p-2 rounded-full mr-3">
+                                    <i class="fas fa-newspaper text-green-500"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">New post trending</p>
+                                    <p class="text-xs text-gray-500">6 hours ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- User Management Tab Content -->
                 <div id="users" class="tab-content hidden">
@@ -247,9 +280,12 @@
                                         <td class="px-4 py-3 text-sm">{{ $user->created_at->format('M d, Y') }}</td>
                                         <td class="px-4 py-3 text-sm">
                                             <div class="flex space-x-2">
-                                                <button class="text-gray-500 hover:text-gray-700">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
+                                                <a href="{{route('users.show', ['id' => $user->id])}}">
+                                                    <button  class="text-gray-500 hover:text-gray-700">
+
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </a>
                                                 <button class="text-blue-500 hover:text-blue-700">
                                                     <i class="fas fa-edit"></i>
                                                 </button>

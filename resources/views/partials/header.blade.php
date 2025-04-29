@@ -63,6 +63,14 @@
                             <span>Events</span>
                         </a>
                     </li>
+                    @if($user->role_id == 1 )
+                        <li class="mb-1">
+                            <a href="{{ route('admin.dashboard') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg {{ request()->routeIs('events') ? 'text-blue-500' : '' }}">
+                                <i class="fas fa-calendar {{ request()->routeIs('events') ? 'text-blue-500' : 'text-blue-400' }} mr-3 text-xl"></i>
+                                <span>Admin Dashboard</span>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </nav>
             <div class="mt-auto">
