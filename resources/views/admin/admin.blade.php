@@ -7,91 +7,106 @@
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
 <!-- Main Layout -->
 <div class="flex min-h-screen bg-gray-100">
-    <!-- Sidebar Navigation -->
-    <div class="w-16 bg-teal-600 flex flex-col items-center py-6 shadow-lg">
-        <div class="mb-8">
-            <div class="w-10 h-10 bg-white rounded flex items-center justify-center">
+    <!-- Sidebar Navigation with expanded content -->
+    <div class="w-64 bg-teal-600 flex flex-col py-6 shadow-lg">
+        <div class="px-6 mb-8 flex items-center">
+            <div class="w-10 h-10 bg-white rounded flex items-center justify-center mr-3">
                 <i class="fas fa-share-alt text-teal-600 text-lg"></i>
+            </div>
+            <h1 class="text-xl font-semibold text-white">Admin Dashboard</h1>
+        </div>
+
+        <!-- User Profile in Sidebar -->
+        <div class="px-6 mb-6 py-3 border-b border-teal-500">
+            <div class="flex items-center">
+                <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Admin" class="w-10 h-10 rounded-full mr-3">
+                <div>
+                    <span class="text-sm font-medium text-white">{{ auth()->user()->name }}</span>
+                    <div class="flex items-center mt-1">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="text-xs text-teal-200 hover:text-white">
+                                <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <nav class="flex flex-col space-y-8 items-center">
-            <a href="#" class="w-10 h-10 bg-teal-700 rounded flex items-center justify-center text-white">
-                <i class="fas fa-tachometer-alt"></i>
-            </a>
-            <a href="#" class="w-10 h-10 hover:bg-teal-700 rounded flex items-center justify-center text-white">
-                <i class="fas fa-users"></i>
-            </a>
-            <a href="#" class="w-10 h-10 hover:bg-teal-700 rounded flex items-center justify-center text-white">
-                <i class="fas fa-newspaper"></i>
-            </a>
-            <a href="#" class="w-10 h-10 hover:bg-teal-700 rounded flex items-center justify-center text-white">
-                <i class="fas fa-comment-alt"></i>
-            </a>
-            <a href="#" class="w-10 h-10 hover:bg-teal-700 rounded flex items-center justify-center text-white">
-                <i class="fas fa-shield-alt"></i>
-            </a>
-            <a href="#" class="w-10 h-10 hover:bg-teal-700 rounded flex items-center justify-center text-white">
-                <i class="fas fa-chart-line"></i>
-            </a>
-            <a href="#" class="w-10 h-10 hover:bg-teal-700 rounded flex items-center justify-center text-white">
-                <i class="fas fa-cog"></i>
-            </a>
-        </nav>
+        <!-- Search in Sidebar -->
+        <div class="px-6 mb-6">
+            <div class="relative">
+                <input type="text" placeholder="Search" class="w-full py-2 pl-10 pr-3 border border-teal-500 rounded-lg bg-teal-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 placeholder-teal-300">
+                <i class="fas fa-search absolute left-3 top-3 text-teal-300"></i>
+            </div>
+        </div>
+
+        <!-- Navigation in Sidebar -->
+        <div class="px-4">
+            <button onclick="showTab('overview')" class="w-full mb-2 flex items-center px-4 py-3 rounded-lg bg-teal-700 text-white">
+                <i class="fas fa-tachometer-alt w-6"></i>
+                <span class="ml-3">Overview</span>
+            </button>
+
+            <button onclick="showTab('users')" class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                <i class="fas fa-users w-6"></i>
+                <span class="ml-3">User Management</span>
+            </button>
+
+            <button onclick="showTab('content')" class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                <i class="fas fa-newspaper w-6"></i>
+                <span class="ml-3">Content Moderation</span>
+            </button>
+
+            <button onclick="showTab('reports')" class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                <i class="fas fa-chart-line w-6"></i>
+                <span class="ml-3">Reports</span>
+            </button>
+
+            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                <i class="fas fa-comment-alt w-6"></i>
+                <span class="ml-3">Messages</span>
+            </button>
+
+            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                <i class="fas fa-shield-alt w-6"></i>
+                <span class="ml-3">Security</span>
+            </button>
+
+            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                <i class="fas fa-cog w-6"></i>
+                <span class="ml-3">Settings</span>
+            </button>
+        </div>
+
+        <!-- Notifications -->
+        <div class="mt-auto px-6 py-4 border-t border-teal-500">
+            <div class="flex items-center text-white">
+                <div class="relative mr-3">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span class="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                </div>
+                <span class="text-sm">Notifications</span>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col">
-        <!-- Top Header -->
-        <header class="bg-white shadow-sm">
-            <div class="flex justify-between items-center px-6 py-4">
-                <div class="flex items-center">
-                    <h1 class="text-xl font-semibold text-gray-800">Admin Dashboard</h1>
-                    <div class="ml-6 flex items-center text-sm text-gray-500">
-                        <a href="#" class="hover:text-teal-600">Dashboard</a>
-                        <span class="mx-2">/</span>
-                        <span class="text-gray-700">Content Moderation</span>
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <div class="relative mr-4">
-                        <input type="text" placeholder="Search" class="w-64 py-2 pl-10 pr-3 border border-gray-300 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
-                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="relative">
-                            <button class="relative p-1 rounded-full text-gray-500 hover:bg-gray-100 mr-3">
-                                <span class="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-                                <i class="fas fa-bell"></i>
-                            </button>
-                        </div>
-                        <div class="flex items-center">
-
-                            <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Admin" class="w-8 h-8 rounded-full mr-2">
-                            <span class="text-sm font-medium">{{ auth()->user()->name }}</span>
-                            <form method="POST" action="{{ route('logout') }}" class="ml-4">
-                                @csrf
-                                <button type="submit" class="text-sm text-gray-500 hover:text-gray-700">
-                                    <i class="fas fa-sign-out-alt mr-1"></i>Logout
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+        <!-- Breadcrumb -->
+        <div class="bg-white shadow-sm px-6 py-4">
+            <div class="flex items-center text-sm text-gray-500">
+                <a href="#" class="hover:text-teal-600">Dashboard</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-700">Content Moderation</span>
             </div>
-
-            <!-- Navigation Tabs -->
-            <div class="px-6 flex space-x-8 border-b">
-                <button onclick="showTab('overview')" class="px-1 py-4 border-b-2 border-teal-500 text-teal-600 font-medium">Overview</button>
-                <button onclick="showTab('users')" class="px-1 py-4 text-gray-500 hover:text-gray-700">User Management</button>
-                <button onclick="showTab('content')" class="px-1 py-4 text-gray-500 hover:text-gray-700">Content Moderation</button>
-                <button onclick="showTab('reports')" class="px-1 py-4 text-gray-500 hover:text-gray-700">Reports</button>
-            </div>
-        </header>
+        </div>
 
         <!-- Main Content -->
         <main class="flex-1 overflow-auto">
@@ -168,7 +183,16 @@
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Chart Section -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-4">User Analytics</h2>
+                        <div class="h-80">
+                            <canvas id="userChart"></canvas>
+                        </div>
+                    </div>
+
+
 
                 <!-- User Management Tab Content -->
                 <div id="users" class="tab-content hidden">
@@ -353,19 +377,100 @@
 
         // Update tab button styles
         document.querySelectorAll('button[onclick^="showTab"]').forEach(button => {
-            button.classList.remove('border-teal-500', 'text-teal-600');
-            button.classList.add('text-gray-500');
+            button.classList.remove('bg-teal-700');
+            button.classList.add('hover:bg-teal-700');
         });
 
         // Style the active tab button
         const activeButton = document.querySelector(`button[onclick="showTab('${tabId}')"]`);
-        activeButton.classList.remove('text-gray-500');
-        activeButton.classList.add('border-teal-500', 'text-teal-600');
+        activeButton.classList.remove('hover:bg-teal-700');
+        activeButton.classList.add('bg-teal-700');
     }
 
-    // Show overview tab by default
+    // Chart.js implementation
     document.addEventListener('DOMContentLoaded', function() {
+        // Show overview tab by default
         showTab('overview');
+
+        // Initialize Chart.js chart
+        const ctx = document.getElementById('userChart').getContext('2d');
+        const userChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Users', 'Active Users', 'Banned Users', 'Suspended Users'],
+                datasets: [{
+                    label: 'User Statistics',
+                    data: [
+                        {{ $stats['total_users'] }},
+                        {{ $stats['active_users'] }},
+                        {{ $stats['banned_users'] }},
+                        {{ $stats['suspended_users'] }}
+                    ],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(255, 205, 86, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgb(54, 162, 235)',
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 205, 86)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Line chart for user growth over time
+        const userGrowthCtx = document.createElement('canvas');
+        userGrowthCtx.id = 'userGrowthChart';
+        document.querySelector('.h-80').appendChild(userGrowthCtx);
+
+        const userGrowthChart = new Chart(userGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'User Growth',
+                    data: [
+                        {{ $stats['total_users'] - 120 }},
+                        {{ $stats['total_users'] - 100 }},
+                        {{ $stats['total_users'] - 80 }},
+                        {{ $stats['total_users'] - 50 }},
+                        {{ $stats['total_users'] - 20 }},
+                        {{ $stats['total_users'] }}
+                    ],
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'User Growth Over Time',
+                        font: {
+                            size: 16
+                        }
+                    }
+                }
+            }
+        });
     });
 
     function banUser(userId) {

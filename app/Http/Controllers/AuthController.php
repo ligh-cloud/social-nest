@@ -65,4 +65,13 @@ class AuthController extends Controller
         }
         return back()->with('error', 'The provided credentials do not match our records');
     }
+    public function show($id)
+    {
+        $user = User::with(['posts' => function($query) {
+            $query->with(['likes', 'comments'])
+                ->orderBy('created_at', 'desc');
+        }])->findOrFail($id);
+
+        return view('user.profile', compact('user'));
+    }
 }

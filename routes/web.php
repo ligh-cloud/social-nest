@@ -131,6 +131,9 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
     Route::get('/saved-posts', [SavedController::class, 'index'])->name('saved-posts.index');
     Route::post('/posts/{post}/save', [SavedController::class, 'save'])->name('posts.save');
     Route::delete('/posts/{post}/unsave', [SavedController::class, 'unsave'])->name('posts.unsave');
+
+    //profile
+    Route::get('/users/{id}', [AuthController::class, 'show'])->name('users.show');
 });
 
 
