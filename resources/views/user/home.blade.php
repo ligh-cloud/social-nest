@@ -82,9 +82,7 @@
         </div>
 
         <!-- Posts Container -->
-        <div id="post-container" class="space-y-4">
-            @include('partials.posts', ['posts' => $posts, 'user' => $user])
-        </div>
+
 
         <!-- Loading indicator -->
         <div id="loading" class="text-center p-4 hidden">
