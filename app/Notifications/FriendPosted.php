@@ -26,9 +26,17 @@ class FriendPosted extends Notification
             'post_id' => $this->post->id,
             'user_id' => $this->post->user_id,
             'text' => $this->post->text,
+            'message' => $this->generateNotificationMessage($notifiable),
             'image' => $this->post->image,
             'privacy' => $this->post->privacy,
             'created_at' => $this->post->created_at,
         ];
+    }
+    private function generateNotificationMessage($notifiable)
+    {
+
+        $user = $this->post->user;
+
+        return "{$user->name} created a post.";
     }
 }
