@@ -70,7 +70,8 @@
                             </button>
                         </div>
                         <div class="flex items-center">
-                            <img src="{{ auth()->user()->profile_photo_path ?? '/api/placeholder/32/32' }}" alt="Admin" class="w-8 h-8 rounded-full mr-2">
+
+                            <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Admin" class="w-8 h-8 rounded-full mr-2">
                             <span class="text-sm font-medium">{{ auth()->user()->name }}</span>
                             <form method="POST" action="{{ route('logout') }}" class="ml-4">
                                 @csrf
@@ -200,7 +201,7 @@
                                         <td class="px-4 py-3">
                                             <div class="flex items-center">
                                                 <div class="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300 overflow-hidden mr-3">
-                                                    <img src="{{ $user->profile_photo_path ?? '/api/placeholder/40/40' }}" alt="User" class="h-full w-full object-cover"/>
+                                                    <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="User" class="h-full w-full object-cover"/>
                                                 </div>
                                                 <div>
                                                     <p class="font-medium text-sm">{{ $user->name ?? 'Unknown User' }}</p>

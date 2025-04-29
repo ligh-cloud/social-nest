@@ -77,6 +77,7 @@ class GoogleAuthController extends Controller
                     'email_verified_at' => now(),
                     'google_id' => $googleUser->getId(),
                     'role_id' => 2,
+                    'profile_photo_path' => 'profile-photos/default.jpg'
                 ]);
                 Auth::login($newUser);
             }
