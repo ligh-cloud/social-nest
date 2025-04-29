@@ -184,17 +184,17 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead>
-                                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <th class="px-4 py-3">User</th>
-                                        <th class="px-4 py-3">Email</th>
-                                        <th class="px-4 py-3">Role</th>
-                                        <th class="px-4 py-3">Status</th>
-                                        <th class="px-4 py-3">Joined</th>
-                                        <th class="px-4 py-3">Actions</th>
-                                    </tr>
+                                <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-4 py-3">User</th>
+                                    <th class="px-4 py-3">Email</th>
+                                    <th class="px-4 py-3">Role</th>
+                                    <th class="px-4 py-3">Status</th>
+                                    <th class="px-4 py-3">Joined</th>
+                                    <th class="px-4 py-3">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white">
-                                    @foreach($users as $user)
+                                @foreach($users as $user)
 
                                     <tr>
                                         <td class="px-4 py-3">
@@ -249,11 +249,11 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    @endforeach
+                                @endforeach
                                 </tbody>
                             </table>
                             <div class="mt-4">
-                                {{ $users->links() }}
+                                {{ $users->appends(['users_page' => $users->currentPage(), 'posts_page' => request('posts_page')])->setPageName('users_page')->links() }}
                             </div>
                         </div>
                     </div>
@@ -269,16 +269,16 @@
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead>
-                                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        <th class="px-4 py-3">Post</th>
-                                        <th class="px-4 py-3">Author</th>
-                                        <th class="px-4 py-3">Likes</th>
-                                        <th class="px-4 py-3">Created</th>
-                                        <th class="px-4 py-3">Actions</th>
-                                    </tr>
+                                <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-4 py-3">Post</th>
+                                    <th class="px-4 py-3">Author</th>
+                                    <th class="px-4 py-3">Likes</th>
+                                    <th class="px-4 py-3">Created</th>
+                                    <th class="px-4 py-3">Actions</th>
+                                </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white">
-                                    @foreach($posts as $post)
+                                @foreach($posts as $post)
                                     <tr>
                                         <td class="px-4 py-3">
                                             <div class="max-w-xs">
@@ -318,11 +318,11 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    @endforeach
+                                @endforeach
                                 </tbody>
                             </table>
                             <div class="mt-4">
-                                {{ $posts->links() }}
+                                {{ $posts->appends(['posts_page' => $posts->currentPage(), 'users_page' => request('users_page')])->setPageName('posts_page')->links() }}
                             </div>
                         </div>
                     </div>
@@ -341,155 +341,154 @@
 </div>
 
 <script>
-function showTab(tabId) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.add('hidden');
+    function showTab(tabId) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+
+        // Show selected tab content
+        document.getElementById(tabId).classList.remove('hidden');
+
+        // Update tab button styles
+        document.querySelectorAll('button[onclick^="showTab"]').forEach(button => {
+            button.classList.remove('border-teal-500', 'text-teal-600');
+            button.classList.add('text-gray-500');
+        });
+
+        // Style the active tab button
+        const activeButton = document.querySelector(`button[onclick="showTab('${tabId}')"]`);
+        activeButton.classList.remove('text-gray-500');
+        activeButton.classList.add('border-teal-500', 'text-teal-600');
+    }
+
+    // Show overview tab by default
+    document.addEventListener('DOMContentLoaded', function() {
+        showTab('overview');
     });
 
-    // Show selected tab content
-    document.getElementById(tabId).classList.remove('hidden');
-
-    // Update tab button styles
-    document.querySelectorAll('button[onclick^="showTab"]').forEach(button => {
-        button.classList.remove('border-teal-500', 'text-teal-600');
-        button.classList.add('text-gray-500');
-    });
-
-    // Style the active tab button
-    const activeButton = document.querySelector(`button[onclick="showTab('${tabId}')"]`);
-    activeButton.classList.remove('text-gray-500');
-    activeButton.classList.add('border-teal-500', 'text-teal-600');
-}
-
-// Show overview tab by default
-document.addEventListener('DOMContentLoaded', function() {
-    showTab('overview');
-});
-
-function banUser(userId) {
-    if (confirm('Are you sure you want to ban this user?')) {
-        fetch(`/admin/users/${userId}/ban`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Failed to ban user: ' + (data.message || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to ban user: ' + error.message);
-        });
+    function banUser(userId) {
+        if (confirm('Are you sure you want to ban this user?')) {
+            fetch(`/admin/users/${userId}/ban`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to ban user: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to ban user: ' + error.message);
+                });
+        }
     }
-}
 
-function unbanUser(userId) {
-    if (confirm('Are you sure you want to unban this user?')) {
-        fetch(`/admin/users/${userId}/unban`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
+    function unbanUser(userId) {
+        if (confirm('Are you sure you want to unban this user?')) {
+            fetch(`/admin/users/${userId}/unban`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
 
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Failed to unban user');
-            }
-        });
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to unban user');
+                    }
+                });
+        }
     }
-}
 
-function suspendUser(userId) {
-    const days = prompt('Enter number of days to suspend (default: 7):', '7');
-    if (days !== null) {
-        fetch(`/admin/users/${userId}/suspend`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ days: parseInt(days) || 7 })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Failed to suspend user');
-            }
-        });
+    function suspendUser(userId) {
+        const days = prompt('Enter number of days to suspend (default: 7):', '7');
+        if (days !== null) {
+            fetch(`/admin/users/${userId}/suspend`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ days: parseInt(days) || 7 })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to suspend user');
+                    }
+                });
+        }
     }
-}
 
-function unsuspendUser(userId) {
-    if (confirm('Are you sure you want to unsuspend this user?')) {
-        fetch(`/admin/users/${userId}/unsuspend`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
+    function unsuspendUser(userId) {
+        if (confirm('Are you sure you want to unsuspend this user?')) {
+            fetch(`/admin/users/${userId}/unsuspend`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
 
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Failed to unsuspend user');
-            }
-        });
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to unsuspend user');
+                    }
+                });
+        }
     }
-}
 
-function deletePost(postId) {
-    if (confirm('Are you sure you want to delete this post?')) {
-        fetch(`/admin/posts/${postId}/delete`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Failed to delete post: ' + (data.message || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to delete post: ' + error.message);
-        });
+    function deletePost(postId) {
+        if (confirm('Are you sure you want to delete this post?')) {
+            fetch(`/admin/posts/${postId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to delete post: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to delete post: ' + error.message);
+                });
+        }
     }
-}
 </script>
 </body>
 </html>
-

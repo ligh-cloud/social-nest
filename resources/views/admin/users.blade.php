@@ -185,4 +185,4 @@ function unsuspendUser(userId) {
 }
 </script>
 @endpush
-@endsection 
+@endsection

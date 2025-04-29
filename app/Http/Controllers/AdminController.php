@@ -19,20 +19,20 @@ class AdminController extends Controller
      * Display admin dashboard
      */
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('admin-access');
 
-        // Fetch users with pagination
+        // Fetch users with pagination using separate page parameter
         $users = User::withTrashed()
             ->latest()
-            ->paginate(10);
+            ->paginate(10, ['*'], 'users_page');
 
-        // Fetch posts with their relationships
-        $posts = Post::with(['user', 'likes'])
-            ->withTrashed() // Include soft-deleted posts
+        // Fetch posts with their relationships using separate page parameter
+        $posts = Post::withoutTrashed() // Only show non-soft-deleted posts
+        ->with(['user', 'likes'])
             ->latest()
-            ->paginate(10);
+            ->paginate(10, ['*'], 'posts_page');
 
         // Get statistics
         $stats = [
