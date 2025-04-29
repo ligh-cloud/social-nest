@@ -2,17 +2,17 @@
 
 @section('content')
     <div x-data="{ showModal: false, formErrors: {}, activeTab: 'upcoming', showFilters: false }" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {{-- Header Section with Background --}}
-        <div class="relative mb-10 bg-gradient-to-r from-emerald-600 to-teal-500 rounded-2xl p-8 text-white shadow-lg overflow-hidden">
+
+        <div class="relative mb-10 bg-gradient-to-r bg-[#5fa5fa] rounded-2xl p-8 shadow-lg overflow-hidden">
             <div class="absolute inset-0 bg-pattern opacity-10"></div>
             <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h1 class="text-4xl font-bold">Events Dashboard</h1>
-                    <p class="mt-2 text-emerald-100 max-w-xl">Discover, create and manage all your events in one place. Stay organized and never miss an important occasion.</p>
+                    <h1 class="text-4xl font-bold text-white">Events Dashboard</h1>
+                    <p class="mt-2 text-emerald-50 max-w-xl">Discover, create and manage all your events in one place. Stay organized and never miss an important occasion.</p>
                 </div>
                 <button
                     @click="showModal = true"
-                    class="bg-white text-emerald-700 hover:bg-emerald-50 px-5 py-3 rounded-lg shadow-md transition-colors duration-200 flex items-center gap-2 font-medium"
+                    class="bg-white text-emerald-800 hover:bg-emerald-50 px-5 py-3 rounded-lg shadow-md transition-colors duration-200 flex items-center gap-2 font-medium"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
