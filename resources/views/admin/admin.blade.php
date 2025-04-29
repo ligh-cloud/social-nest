@@ -195,6 +195,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white">
                                     @foreach($users as $user)
+
                                     <tr>
                                         <td class="px-4 py-3">
                                             <div class="flex items-center">
@@ -284,8 +285,8 @@
                                                 <p class="text-sm text-gray-800 mb-2">{{ $post->text ?? 'No text content' }}</p>
                                                 @if($post->image)
                                                     <div class="mt-2">
-                                                        <img src="{{ asset('storage/' . $post->image) }}" 
-                                                             alt="Post image" 
+                                                        <img src="{{ asset('storage/' . $post->image) }}"
+                                                             alt="Post image"
                                                              class="w-32 h-32 object-cover rounded-lg">
                                                     </div>
                                                 @endif
@@ -294,8 +295,8 @@
                                         <td class="px-4 py-3">
                                             <div class="flex items-center">
                                                 <div class="h-8 w-8 flex-shrink-0 rounded-full bg-gray-300 overflow-hidden mr-2">
-                                                    <img src="{{ $post->user->profile_photo_path ? asset('storage/' . $post->user->profile_photo_path) : '/api/placeholder/32/32' }}" 
-                                                         alt="User" 
+                                                    <img src="{{ $post->user->profile_photo_path ? asset('storage/' . $post->user->profile_photo_path) : '/api/placeholder/32/32' }}"
+                                                         alt="User"
                                                          class="h-full w-full object-cover"/>
                                                 </div>
                                                 <div>
@@ -345,16 +346,16 @@ function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.add('hidden');
     });
-    
+
     // Show selected tab content
     document.getElementById(tabId).classList.remove('hidden');
-    
+
     // Update tab button styles
     document.querySelectorAll('button[onclick^="showTab"]').forEach(button => {
         button.classList.remove('border-teal-500', 'text-teal-600');
         button.classList.add('text-gray-500');
     });
-    
+
     // Style the active tab button
     const activeButton = document.querySelector(`button[onclick="showTab('${tabId}')"]`);
     activeButton.classList.remove('text-gray-500');

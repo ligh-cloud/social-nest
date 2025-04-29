@@ -15,7 +15,8 @@ class PostController extends Controller
         $perPage = $request->input('per_page', 5);
         $page = $request->input('page', 1);
 
-        $posts = Post::with(['user', 'comments.user'])
+        $posts = Post::withoutTrashed()
+            ->with(['user', 'comments.user'])
             ->withCount('comments')
             ->withCount('likes')
             ->orderBy('created_at', 'desc')
@@ -88,7 +89,9 @@ class PostController extends Controller
     public function showPost($id)
     {
         $user = Auth::user();
-        $post = Post::with(['user', 'likes', 'comments.user'])->findOrFail($id);
+        $post = Post::withoutTrashed()
+            ->with(['user', 'likes', 'comments.user'])
+            ->findOrFail($id);
 
         // Get the comments for this post, sorted by newest first
         $comments = $post->comments()->with('user')->latest()->get();
@@ -104,6 +107,7 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
+
         return view('posts.edit', compact('post'));
     }
 
@@ -136,13 +140,14 @@ class PostController extends Controller
     public function showVideos()
     {
         $videoExtensions = ['mp4', 'mov', 'avi', 'mkv'];
-$user = Auth::user();
-        $videoPosts = Post::whereNotNull('image')
-        ->where(function($query) use ($videoExtensions) {
-            foreach ($videoExtensions as $ext) {
-                $query->orWhere('image', 'like', "%.{$ext}");
-            }
-        })
+        $user = Auth::user();
+        $videoPosts = Post::withoutTrashed()
+            ->whereNotNull('image')
+            ->where(function($query) use ($videoExtensions) {
+                foreach ($videoExtensions as $ext) {
+                    $query->orWhere('image', 'like', "%.{$ext}");
+                }
+            })
             ->inRandomOrder()
             ->get();
 

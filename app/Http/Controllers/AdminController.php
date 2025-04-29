@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class AdminController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Display admin dashboard
      */
