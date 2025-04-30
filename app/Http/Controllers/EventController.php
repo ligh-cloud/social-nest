@@ -69,12 +69,12 @@ class EventController extends Controller
                 'success' => true,
                 'message' => 'Event created successfully!',
                 'event' => $event,
-                'redirect' => route('events.index')  // Ensure this route is correct
+                'redirect' => route('events')  // Ensure this route is correct
             ]);
         }
 
         // Redirect if not an AJAX request
-        return redirect()->route('events.index')->with('success', 'Event created successfully!');
+        return redirect()->route('events')->with('success', 'Event created successfully!');
     }
 
     /**
@@ -102,7 +102,7 @@ class EventController extends Controller
     {
         // Check if the authenticated user is the creator of the event
         if (Auth::id() !== $event->user_id) {
-            return redirect()->route('events.index')->with('error', 'You are not authorized to edit this event.');
+            return redirect()->route('events')->with('error', 'You are not authorized to edit this event.');
         }
 
         return view('events.edit', compact('event'));
@@ -119,7 +119,7 @@ class EventController extends Controller
     {
         // Check if the authenticated user is the creator of the event
         if (Auth::id() !== $event->user_id) {
-            return redirect()->route('events.index')->with('error', 'You are not authorized to update this event.');
+            return redirect()->route('events')->with('error', 'You are not authorized to update this event.');
         }
 
         $request->validate([
@@ -153,13 +153,13 @@ class EventController extends Controller
     {
         // Check if the authenticated user is the creator of the event
         if (Auth::id() !== $event->user_id) {
-            return redirect()->route('events.index')->with('error', 'You are not authorized to delete this event.');
+            return redirect()->route('events')->with('error', 'You are not authorized to delete this event.');
         }
 
         // Delete the event
         $event->delete();
 
         // Redirect to events index
-        return redirect()->route('events.index')->with('success', 'Event deleted successfully!');
+        return redirect()->route('events')->with('success', 'Event deleted successfully!');
     }
 }

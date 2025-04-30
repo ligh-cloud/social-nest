@@ -164,7 +164,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        <span>{{ $event->start_time->format('g:i A') }} - {{ $event->end_time ? $event->end_time->format('g:i A') : 'TBD' }}</span>
+                                        <span>{{ \Carbon\Carbon::parse($event->start_time)->format('g:i A') }} - {{ \Carbon\Carbon::parse($event->end_time)->format('g:i A') }}</span>
                                     </div>
 
                                     <div class="flex items-center gap-2">
