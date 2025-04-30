@@ -9,15 +9,26 @@
 
             <div class="divide-y">
                 @forelse($notifications as $notification)
+                    @php
+                        $data = $notification->data;
+                        $message = $data['message'] ?? ($data['text'] ?? 'New notification');
+                    @endphp
+
                     <div class="p-4 hover:bg-gray-50 transition {{ $notification->read_at ? '' : 'bg-blue-50' }}">
                         <div class="flex items-start">
-
                             <div class="flex-grow">
                                 <p class="text-sm font-medium text-gray-800">
-                                    <!-- Make the notification message clickable -->
-                                    <a href="{{ route('posts.show', ['post' => $notification->data['post_id']]) }}" class="hover:text-blue-600">
-                                        {{ $notification->data['message'] ?? 'New notification' }}
-                                    </a>
+                                    @if(isset($data['post_id']))
+                                        <a href="{{ route('posts.show', ['post' => $data['post_id']]) }}" class="hover:text-blue-600">
+                                            {{ $message }}
+                                        </a>
+                                    @elseif(isset($data['event_id']))
+                                        <a href="{{ route('events.show', ['event' => $data['event_id']]) }}" class="hover:text-green-600">
+                                            {{ $message }}
+                                        </a>
+                                    @else
+                                        <span>{{ $message }}</span>
+                                    @endif
                                 </p>
 
                                 <p class="text-xs text-gray-500 mt-1">
@@ -25,7 +36,6 @@
                                 </p>
                             </div>
 
-                            <!-- Read Status Indicator -->
                             @if(!$notification->read_at)
                                 <span class="ml-2 flex-shrink-0 inline-block h-2 w-2 rounded-full bg-blue-500"></span>
                             @endif
@@ -38,7 +48,6 @@
                 @endforelse
             </div>
 
-            <!-- Pagination Controls -->
             @if($notifications->hasPages())
                 <div class="p-4 border-t">
                     {{ $notifications->links() }}
