@@ -1,8 +1,4 @@
-@extends('layouts.layout')
 
-@section('title', 'Friends')
-
-@section('content')
     <div class="mt-4">
         <!-- Search & Filter -->
         <div class="bg-white rounded-lg shadow-sm mb-4 p-4">
@@ -31,30 +27,7 @@
             </div>
         </div>
 
-        <!-- All Friends -->
-        <div class="bg-white rounded-lg shadow-sm p-4">
-            <h2 class="text-lg font-semibold mb-3">All Friends <span class="text-gray-500 font-normal">(273)</span></h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Friends Loop (static for now) -->
-                @foreach(range(1, 6) as $i)
-                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
-                        <div class="flex items-center">
-                            <img src="{{ asset("storage/profile/user{$i}.jpg") }}" class="w-14 h-14 rounded-full mr-3">
-                            <div>
-                                <div class="font-medium">Friend {{ $i }}</div>
-                                <div class="text-xs text-gray-500">Friends since {{ 2020 + ($i % 3) }}</div>
-                            </div>
-                        </div>
-                        <button class="text-gray-400 hover:text-gray-600"><i class="fas fa-ellipsis-h"></i></button>
-                    </div>
-                @endforeach
-            </div>
-
-            <div class="text-center mt-6">
-                <button class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Show More</button>
-            </div>
-        </div>
     </div>
 @endsection
 

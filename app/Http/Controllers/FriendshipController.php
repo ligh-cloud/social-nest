@@ -186,6 +186,6 @@ class FriendshipController extends Controller
         }
 
         // Return the full page for direct visits
-        return view('user.friend_suggestions', compact('suggestedUsers', 'user'));
+        return view('partials.friend_suggestions', compact('suggestedUsers', 'user'));
     }
 }

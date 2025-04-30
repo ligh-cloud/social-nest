@@ -1,4 +1,7 @@
+<h2 class="text-lg font-semibold mb-3">Friend Requests</h2>
 @if(count($friendRequests) > 0)
+
+
     @foreach($friendRequests as $request)
         <div class="flex items-start md:items-center flex-col md:flex-row justify-between py-3 border-b">
             <div class="flex items-center mb-2 md:mb-0">
