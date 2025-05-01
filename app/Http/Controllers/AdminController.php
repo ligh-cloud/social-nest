@@ -281,4 +281,24 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    public function searchUsers(Request $request)
+    {
+        $this->authorize('admin-access');
+        $query = $request->input('query');
+
+        // If query is empty or too short, return empty results
+        if (empty($query) || strlen($query) < 2) {
+            return response()->view('admin.partials.search-results', ['users' => collect()]);
+        }
+
+        // Search for users by name or email
+        $users = User::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('email', 'LIKE', "%{$query}%")
+            ->limit(5)
+            ->get();
+
+        // Return the rendered view
+        return response()->view('partials.search-results', ['users' => $users]);
+    }
 }

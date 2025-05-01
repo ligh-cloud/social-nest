@@ -134,6 +134,8 @@ Route::middleware(['auth', 'verified', IsArchived::class, IsAdmin::class])->grou
 
     //profile
     Route::get('/users/{id}', [AuthController::class, 'show'])->name('users.show');
+
+    Route::get('admin/users/search', [AdminController::class, 'searchUsers'])->name('users.search');
 });
 
 

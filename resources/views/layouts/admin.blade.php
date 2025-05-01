@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
 </head>
 <body>
 <!-- Main Layout -->
@@ -40,10 +41,20 @@
         </div>
 
         <!-- Search in Sidebar -->
-        <div class="px-6 mb-6">
+        <div class="relative">
             <div class="relative">
-                <input type="text" placeholder="Search" class="w-full py-2 pl-10 pr-3 border border-teal-500 rounded-lg bg-teal-700 text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 placeholder-teal-300">
-                <i class="fas fa-search absolute left-3 top-3 text-teal-300"></i>
+                <input
+                    type="text"
+                    id="user-search-input"
+                    placeholder="Search users"
+                    class="w-full py-2 pl-10 pr-3 border border-gray-300 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
+
+            {{-- Search results dropdown --}}
+            <div id="search-results" class="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-y-auto hidden">
+                {{-- Results will be loaded here via AJAX --}}
             </div>
         </div>
 
@@ -64,10 +75,10 @@
                 <span class="ml-3">Content Moderation</span>
             </button>
 
-            <button onclick="showTab('reports')" class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
-                <i class="fas fa-chart-line w-6"></i>
-                <span class="ml-3">Reports</span>
-            </button>
+{{--            <button onclick="showTab('reports')" class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">--}}
+{{--                <i class="fas fa-chart-line w-6"></i>--}}
+{{--                <span class="ml-3">Reports</span>--}}
+{{--            </button>--}}
 
             <a href="{{route('home')}}"><button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
                     <i class="fas fa-comment-alt w-6"></i>
@@ -75,28 +86,33 @@
                 </button>
             </a>
 
-            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
-                <i class="fas fa-shield-alt w-6"></i>
-                <span class="ml-3">Security</span>
-            </button>
+{{--            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">--}}
+{{--                <i class="fas fa-shield-alt w-6"></i>--}}
+{{--                <span class="ml-3">Security</span>--}}
+{{--            </button>--}}
 
-            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
-                <i class="fas fa-cog w-6"></i>
-                <span class="ml-3">Settings</span>
-            </button>
+{{--            <button class="w-full mb-2 flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">--}}
+{{--                <i class="fas fa-cog w-6"></i>--}}
+{{--                <span class="ml-3">Settings</span>--}}
+{{--            </button>--}}
         </div>
 
         <!-- Notifications -->
+
         <div class="mt-auto px-6 py-4 border-t border-teal-500">
-            <div class="flex items-center text-white">
-                <div class="relative mr-3">
-                    <i class="fas fa-bell text-lg"></i>
-                    <span class="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-                </div>
-                <span class="text-sm">Notifications</span>
+            <div class="mt-auto px-6 py-4 border-t border-teal-500">
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-teal-700 text-white">
+                        <i class="fas fa-sign-out-alt w-6"></i>
+                        <span class="ml-3">Logout</span>
+                    </button>
+                </form>
             </div>
         </div>
+
     </div>
+
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col">
@@ -348,6 +364,59 @@
                 });
         }
     }
+
+
+
+    // Add this to your scripts section
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('#user-search-input');
+        const searchResults = document.querySelector('#search-results');
+        let searchTimeout;
+
+        if (searchInput && searchResults) {
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+
+                // Clear previous timeout
+                clearTimeout(searchTimeout);
+
+                // Show loading indicator
+                if (query.length >= 2) {
+                    searchResults.innerHTML = '<div class="p-3 text-center"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
+                    searchResults.classList.remove('hidden');
+                } else {
+                    searchResults.classList.add('hidden');
+                }
+
+                // Set a timeout to avoid too many requests
+                searchTimeout = setTimeout(() => {
+                    if (query.length < 2) {
+                        searchResults.classList.add('hidden');
+                        return;
+                    }
+
+                    // Make AJAX request
+                    fetch(`/admin/users/search?query=${encodeURIComponent(query)}`)
+                        .then(response => response.text())
+                        .then(html => {
+                            searchResults.innerHTML = html;
+                            searchResults.classList.remove('hidden');
+                        })
+                        .catch(error => {
+                            console.error('Search error:', error);
+                            searchResults.innerHTML = '<div class="p-3 text-center text-red-500">Error searching users</div>';
+                        });
+                }, 300);
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+        }
+    });
 </script>
 </body>
 </html>

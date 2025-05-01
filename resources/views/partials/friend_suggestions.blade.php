@@ -22,9 +22,7 @@
                     @foreach ($suggestedUsers as $user)
                         <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition relative user-card" data-name="{{ $user->name }}">
                             <div class="flex items-center space-x-3">
-                                <img src="{{ $user->profile_picture
-                                    ? asset('storage/profile/'.$user->profile_picture)
-                                    : asset('images/default-profile.jpg') }}"
+                                <img src="{{ asset('storage/' . $user->profile_photo_path) }}"
                                      class="w-12 h-12 rounded-full object-cover border border-gray-200">
                                 <div>
                                     <div class="font-medium text-gray-900">{{ $user->name }}</div>
