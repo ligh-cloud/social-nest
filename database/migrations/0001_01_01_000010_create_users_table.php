@@ -1,56 +1,37 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace App\Http\Middleware;
 
-return new class extends Migration
+use App\Models\User;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
+
+class IsArchived
 {
     /**
-     * Run the migrations.
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function up(): void
+    public function handle(Request $request, Closure $next): Response
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->timestamp('last_active_at')->nullable();
-            $table->string('google_id')->nullable();
-            $table->string('facebook_id')->nullable();
-            $table->string('password');
-            $table->string('bio')->default('nothing');
-            $table->string('profile_photo_path')->default('profile-photos/default.jpg');
-            $table->foreignId('role_id')->constrained()->onDelete('cascade')->default(2);
-            $table->boolean('archived')->default(false);
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        if (Auth::check()) {
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
+            $user = User::withTrashed()->find(Auth::id());
 
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
-        });
+            if ($user) {
+                // Check if the account is archived or suspended
+                if ($user->trashed() || $user->archived) {
+                    Auth::logout();
+                    return redirect()->route('login')->with('message', 'Your account has been deactivated or suspended.');
+                }
+            }
+
+            return $next($request);
+        }
+
+        return redirect()->route('login');
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
-    }
-};
+}

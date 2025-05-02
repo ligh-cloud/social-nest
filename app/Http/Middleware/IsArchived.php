@@ -21,9 +21,12 @@ class IsArchived
 
             $user = User::withTrashed()->find(Auth::id());
 
-            if ($user && $user->trashed()) {
-                Auth::logout();
-                return redirect()->route('login')->with('message', 'Your account has been deactivated.');
+            if ($user) {
+                // Check if the account is archived, suspended or soft-deleted
+                if ($user->trashed() || $user->archived || $user->suspended_until > now()) {
+                    Auth::logout();
+                    return redirect()->route('login')->with('message', 'Your account has been deactivated, suspended or deleted.');
+                }
             }
 
             return $next($request);
