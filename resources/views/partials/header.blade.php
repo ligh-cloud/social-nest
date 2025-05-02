@@ -11,8 +11,10 @@
             <div class="mb-6">
                 <img src="{{ asset('image/logo.png') }}" alt="SocialNest Logo" class="w-12 h-12">
             </div>
+            <a href="{{ route('users.show', auth()->id()) }}">
             <div class="mb-8 flex items-center">
-                <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
+                <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
+
                 <div class="text-gray-700 text-lg font-medium">{{ auth()->user()->name ?? 'John Doe' }}</div>
             </div>
             <div class="relative mb-6">
@@ -51,12 +53,7 @@
                             <span>Saved</span>
                         </a>
                     </li>
-                    <li class="mb-1">
-                        <a href="{{ route('pages') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg {{ request()->routeIs('pages') ? 'text-blue-500' : '' }}">
-                            <i class="fas fa-flag {{ request()->routeIs('pages') ? 'text-blue-500' : 'text-blue-400' }} mr-3 text-xl"></i>
-                            <span>Pages</span>
-                        </a>
-                    </li>
+
                     <li class="mb-1">
                         <a href="{{ route('events') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg {{ request()->routeIs('events') ? 'text-blue-500' : '' }}">
                             <i class="fas fa-calendar {{ request()->routeIs('events') ? 'text-blue-500' : 'text-blue-400' }} mr-3 text-xl"></i>
@@ -66,7 +63,8 @@
                     @if($user->role_id == 1 )
                         <li class="mb-1">
                             <a href="{{ route('admin.dashboard') }}" class="nav-item flex items-center p-2 text-gray-700 font-medium rounded-lg {{ request()->routeIs('events') ? 'text-blue-500' : '' }}">
-                                <i class="fas fa-calendar {{ request()->routeIs('events') ? 'text-blue-500' : 'text-blue-400' }} mr-3 text-xl"></i>
+                                <i class="fas fa-tachometer-alt {{ request()->routeIs('admin.dashboard') ? 'text-blue-500' : 'text-blue-400' }} mr-3 text-xl"></i>
+
                                 <span>Admin Dashboard</span>
                             </a>
                         </li>

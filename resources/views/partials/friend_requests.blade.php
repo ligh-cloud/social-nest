@@ -1,4 +1,4 @@
-<h2 class="text-lg font-semibold mb-3">Friend Requests</h2>
+
 @if(count($friendRequests) > 0)
 
 

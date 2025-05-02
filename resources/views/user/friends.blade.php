@@ -1,4 +1,6 @@
+@extends('layouts.layout')
 
+@section('content')
     <div class="mt-4">
         <!-- Search & Filter -->
         <div class="bg-white rounded-lg shadow-sm mb-4 p-4">

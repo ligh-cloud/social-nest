@@ -4,7 +4,7 @@
 <div class="w-full lg:w-3/5 lg:ml-[20%] p-4">
     <div class="bg-white rounded-lg shadow-sm p-4">
         <h2 class="text-xl font-semibold mb-4">Messages</h2>
-        
+
         @if($users->isEmpty())
             <div class="text-center py-8">
                 <i class="fas fa-comments text-gray-400 text-4xl mb-4"></i>
@@ -14,12 +14,13 @@
             <div class="space-y-2">
                 @foreach($users as $user)
                     @if($user->id !== auth()->id())
-                        <a href="{{ route('chat.index', $user) }}" 
+                        <a href="{{ route('chat.index', $user) }}"
                            class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200">
                             <div class="flex-shrink-0">
-                                <img src="{{ $user->profile_photo_url }}" 
-                                     alt="{{ $user->name }}" 
+                                <img src="{{ asset('storage/' . $user->profile_photo_path) }}"
+                                     alt="{{ $user->name }}"
                                      class="w-12 h-12 rounded-full object-cover">
+
                             </div>
                             <div class="ml-3 flex-1">
                                 <div class="flex justify-between items-center">
@@ -45,4 +46,4 @@
         @endif
     </div>
 </div>
-@endsection 
+@endsection

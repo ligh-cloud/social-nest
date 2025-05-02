@@ -5,8 +5,8 @@
     <div class="bg-white rounded-lg shadow-sm">
         <!-- Chat Header -->
         <div class="border-b p-4 flex items-center">
-            <img src="{{ $user->profile_photo_url }}" 
-                 alt="{{ $user->name }}" 
+            <img src="{{ asset('storage/' . $user->profile_photo_path) }}"
+                 alt="{{ $user->name }}"
                  class="w-10 h-10 rounded-full object-cover">
             <div class="ml-3">
                 <h2 class="text-lg font-semibold">{{ $user->name }}</h2>
@@ -27,11 +27,11 @@
                         <div class="max-w-[70%]">
                             <div class="flex items-end {{ $message->sender_id == auth()->id() ? 'flex-row-reverse' : '' }}">
                                 @if($message->sender_id != auth()->id())
-                                    <img src="{{ $message->sender->profile_photo_url }}" 
-                                         alt="{{ $message->sender->name }}" 
+                                    <img src="{{ asset('storage/' . $message->sender->profile_photo_path) }}"
+                                         alt="{{ $message->sender->name }}"
                                          class="w-8 h-8 rounded-full object-cover mr-2">
                                 @endif
-                                <div class="{{ $message->sender_id == auth()->id() ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900' }} 
+                                <div class="{{ $message->sender_id == auth()->id() ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900' }}
                                             rounded-2xl px-4 py-2">
                                     <p class="text-sm">{{ $message->message }}</p>
                                     <span class="text-xs {{ $message->sender_id == auth()->id() ? 'text-blue-100' : 'text-gray-500' }}">
@@ -48,11 +48,11 @@
         <!-- Message Input -->
         <div class="border-t p-4">
             <form id="message-form" class="flex items-center space-x-2">
-                <input type="text" 
-                       id="message" 
-                       class="flex-1 rounded-full border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200" 
+                <input type="text"
+                       id="message"
+                       class="flex-1 rounded-full border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200"
                        placeholder="Type your message...">
-                <button type="submit" 
+                <button type="submit"
                         class="bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 transition-colors duration-200">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -88,8 +88,8 @@
                 <div class="max-w-[70%]">
                     <div class="flex items-end ${isSender ? 'flex-row-reverse' : ''}">
                         ${!isSender ? `
-                            <img src="${message.sender.profile_photo_url}" 
-                                 alt="${message.sender.name}" 
+                            <img src="${message.sender.profile_photo_url}"
+                                 alt="${message.sender.name}"
                                  class="w-8 h-8 rounded-full object-cover mr-2">
                         ` : ''}
                         <div class="${isSender ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'} rounded-2xl px-4 py-2">
@@ -110,7 +110,7 @@
         e.preventDefault();
         var messageInput = document.getElementById('message');
         var message = messageInput.value.trim();
-        
+
         if (message === '') return;
 
         // Show loading state
@@ -192,4 +192,4 @@
     }
 </style>
 @endpush
-@endsection 
+@endsection

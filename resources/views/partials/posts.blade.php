@@ -14,6 +14,7 @@
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden post-item">
                     <div class="p-4">
                         <!-- Post Header -->
+                        <a href="{{ route('users.show', $post->user->id) }}">
                         <div class="flex items-center mb-3">
                             <img src="{{ asset('storage/' . $post->user->profile_photo_path) }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
 
@@ -22,7 +23,7 @@
                                 <div class="text-xs text-gray-500">{{ $post->created_at->diffForHumans() }}</div>
                             </div>
                         </div>
-
+                        </a>
                         <!-- Post Content -->
                         <p class="mb-4 text-gray-800">{{ $post->content }}</p>
 
