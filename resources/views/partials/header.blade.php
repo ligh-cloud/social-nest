@@ -200,29 +200,82 @@
         </div>
     </div>
 </div>
-@if(session('success'))
-    <div class="mb-4 rounded-lg bg-green-100 border border-green-400 text-green-800 px-4 py-3 text-sm">
-        <strong>Success:</strong> {{ session('success') }}
-    </div>
-@endif
 
-@if(session('error'))
-    <div class="mb-4 rounded-lg bg-red-100 border border-red-400 text-red-800 px-4 py-3 text-sm">
-        <strong>Error:</strong> {{ session('error') }}
+<!-- Enhanced Alert Container -->
+<div id="alert-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 90%; max-width: 450px; display: none;">
+    <div id="alert-box" class="alert-box" style="padding: 16px 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); display: flex; align-items: center; justify-content: space-between; animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div id="alert-icon-container" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i id="alert-icon" style="font-size: 1.4em;"></i>
+            </div>
+            <div>
+                <div id="alert-title" style="font-weight: 600; font-size: 1.05rem; margin-bottom: 2px;"></div>
+                <div id="alert-message" style="font-size: 0.95rem; opacity: 0.9;"></div>
+            </div>
+        </div>
+        <button onclick="hideAlert()" style="background: none; border: none; color: inherit; cursor: pointer; font-size: 1.1em; opacity: 0.7; transition: opacity 0.2s; padding: 8px; margin: -8px; border-radius: 50%;">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-@endif
-
-@if($errors->any())
-    <div class="mb-4 rounded-lg bg-red-100 border border-red-400 text-red-800 px-4 py-3 text-sm">
-        <strong>There were some errors:</strong>
-        <ul class="mt-2 list-disc list-inside text-sm">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+    <div id="alert-progress" style="width: 100%; height: 4px; margin-top: 4px; border-radius: 2px; overflow: hidden; background: rgba(255,255,255,0.2); display: none;">
+        <div id="alert-progress-bar" style="height: 100%; width: 100%; background: rgba(255,255,255,0.4);"></div>
     </div>
-@endif
+</div>
 
+<!-- Add these styles to your head or stylesheet -->
+<style>
+    @keyframes bounceIn {
+        0% { opacity: 0; transform: scale(0.8); }
+        70% { transform: scale(1.05); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeOutUp {
+        0% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-20px); }
+    }
+
+    @keyframes progressShrink {
+        from { width: 100%; }
+        to { width: 0%; }
+    }
+
+    .alert-success {
+        background: linear-gradient(145deg, rgba(52, 211, 153, 0.95), rgba(16, 185, 129, 0.95));
+        color: white;
+    }
+
+    .alert-error {
+        background: linear-gradient(145deg, rgba(248, 113, 113, 0.95), rgba(239, 68, 68, 0.95));
+        color: white;
+    }
+
+    .alert-warning {
+        background: linear-gradient(145deg, rgba(251, 191, 36, 0.95), rgba(245, 158, 11, 0.95));
+        color: white;
+    }
+
+    .alert-info {
+        background: linear-gradient(145deg, rgba(96, 165, 250, 0.95), rgba(59, 130, 246, 0.95));
+        color: white;
+    }
+
+    .icon-container-success {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .icon-container-error {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .icon-container-warning {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .icon-container-info {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+</style>
 
 <!-- Scripts -->
 <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
@@ -292,7 +345,7 @@
                 .catch(error => console.error('Error loading notifications:', error));
         }
 
-// Update the notification list
+        // Update the notification list
         function updateNotificationList(notifications) {
             notificationList.innerHTML = notifications.length === 0 ?
                 '<div class="p-4 text-center text-gray-500 text-sm">No notifications yet</div>' : '';
@@ -332,13 +385,13 @@
                 }
 
                 notifElement.innerHTML = `
-            <div class="flex-shrink-0 mr-3">
-                <i class="${icon} text-blue-500 text-xl w-6 text-center"></i>
-            </div>
-            <div class="flex-grow">
-                <p class="text-sm font-medium">${data.message || 'New notification'}</p>
-                <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.created_at))}</p>
-            </div>`;
+                <div class="flex-shrink-0 mr-3">
+                    <i class="${icon} text-blue-500 text-xl w-6 text-center"></i>
+                </div>
+                <div class="flex-grow">
+                    <p class="text-sm font-medium">${data.message || 'New notification'}</p>
+                    <p class="text-xs text-gray-500 mt-1">${formatTimeAgo(new Date(notification.created_at))}</p>
+                </div>`;
 
                 // Add click event to mark as read and navigate
                 notifElement.addEventListener('click', () => {
@@ -400,6 +453,116 @@
             interval = seconds / 60;
             if (interval > 1) return Math.floor(interval) + " minutes ago";
             return "just now";
+        }
+
+        // Enhanced Sweet Alert functionality
+        function showAlert(message, type, title = '', duration = 5000) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertBox = document.getElementById('alert-box');
+            const alertIcon = document.getElementById('alert-icon');
+            const alertIconContainer = document.getElementById('alert-icon-container');
+            const alertMessage = document.getElementById('alert-message');
+            const alertTitle = document.getElementById('alert-title');
+            const alertProgress = document.getElementById('alert-progress');
+            const alertProgressBar = document.getElementById('alert-progress-bar');
+
+            // Reset any previous animations
+            alertBox.style.animation = 'bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+
+            // Set message and title
+            alertMessage.textContent = message;
+            alertTitle.textContent = title || getDefaultTitle(type);
+
+            // Remove previous classes
+            alertBox.className = 'alert-box';
+            alertIconContainer.className = '';
+
+            // Set style based on type
+            if (type === 'success') {
+                alertBox.classList.add('alert-success');
+                alertIconContainer.classList.add('icon-container-success');
+                alertIcon.className = 'fas fa-check';
+            } else if (type === 'error') {
+                alertBox.classList.add('alert-error');
+                alertIconContainer.classList.add('icon-container-error');
+                alertIcon.className = 'fas fa-exclamation';
+            } else if (type === 'warning') {
+                alertBox.classList.add('alert-warning');
+                alertIconContainer.classList.add('icon-container-warning');
+                alertIcon.className = 'fas fa-exclamation-triangle';
+            } else if (type === 'info') {
+                alertBox.classList.add('alert-info');
+                alertIconContainer.classList.add('icon-container-info');
+                alertIcon.className = 'fas fa-info';
+            }
+
+            // Show alert and progress bar
+            alertContainer.style.display = 'block';
+            alertProgress.style.display = 'block';
+
+            // Animate progress bar
+            alertProgressBar.style.animation = `progressShrink ${duration}ms linear forwards`;
+
+            // Auto hide after duration
+            setTimeout(hideAlert, duration);
+
+            return alertBox; // Return the alert element for potential further manipulation
+        }
+
+        function getDefaultTitle(type) {
+            switch(type) {
+                case 'success': return 'Success!';
+                case 'error': return 'Error!';
+                case 'warning': return 'Warning!';
+                case 'info': return 'Information';
+                default: return '';
+            }
+        }
+
+        function hideAlert() {
+            const alertContainer = document.getElementById('alert-container');
+            const alertBox = document.getElementById('alert-box');
+
+            alertBox.style.animation = 'fadeOutUp 0.3s forwards';
+
+            setTimeout(() => {
+                alertContainer.style.display = 'none';
+                alertBox.style.animation = '';
+            }, 300);
+        }
+
+        // Process Laravel flash messages
+        @if(session('success'))
+        showAlert("{{ session('success') }}", 'success');
+        @endif
+
+        @if(session('error'))
+        showAlert("{{ session('error') }}", 'error');
+        @endif
+
+        @if(session('warning'))
+        showAlert("{{ session('warning') }}", 'warning');
+        @endif
+
+        @if(session('info'))
+        showAlert("{{ session('info') }}", 'info');
+        @endif
+
+        // Process validation errors
+        @if($errors->any())
+        showAlert("{{ $errors->first() }}", 'error', 'Validation Error');
+        @endif
+
+        // Check for hidden input fields with flash messages
+        const sessionMessage = document.getElementById('session-message');
+        const sessionError = document.getElementById('session-error');
+
+        if (sessionMessage && sessionMessage.value) {
+            showAlert(sessionMessage.value, 'success');
+        }
+
+        if (sessionError && sessionError.value) {
+            showAlert(sessionError.value, 'error');
         }
     });
 </script>
