@@ -1,5 +1,13 @@
 
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100">
 
 
     <div class="container mx-auto max-w-lg p-6 bg-white shadow-md rounded-lg mt-10">
@@ -26,4 +34,4 @@
             </button>
         </form>
     </div>
-
+</body>
