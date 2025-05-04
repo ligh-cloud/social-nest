@@ -1,6 +1,16 @@
 @if(count($posts) > 0)
     @foreach($posts as $post)
+        @php
+            $videoExtensions = ['mp4', 'mov', 'avi', 'wmv', 'mkv'];
+            $isVideo = false;
+
+            if ($post->image) {
+                $extension = pathinfo($post->image, PATHINFO_EXTENSION);
+                $isVideo = in_array(strtolower($extension), $videoExtensions);
+            }
+        @endphp
         @if($post->privacy == 'public')
+            @if($post->image && !$isVideo)
             <div class="bg-white rounded-lg shadow-sm overflow-hidden post-item">
                 <div class="p-4">
                     <!-- Post Header -->
@@ -164,6 +174,7 @@
 
                 </div>
             </div>
+            @endif
         @endif
     @endforeach
 @else
