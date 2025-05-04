@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->softDeletes();
             $table->timestamp('last_active_at')->nullable();
+            $table->timestamp('suspended_until')->nullable();
             $table->string('google_id')->nullable();
             $table->string('facebook_id')->nullable();
             $table->string('password');

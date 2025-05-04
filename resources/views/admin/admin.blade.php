@@ -119,7 +119,7 @@
                                         </div>
                                         <div>
                                             <p class="font-medium text-sm text-gray-900">{{ $user->name ?? 'Unknown User' }}</p>
-                                            <p class="text-xs text-gray-500">@{{ $user->username ?? 'No username' }}</p>
+
                                         </div>
                                     </div>
                                 </td>
