@@ -5,6 +5,8 @@
                 <div class="p-4">
                     <!-- Post Header -->
                     <div class="flex items-center mb-3">
+
+
                         <img src="{{ asset('storage/' . $post->user->profile_photo_path) }}" alt="User Profile" class="w-10 h-10 rounded-full mr-2">
 
                         <div>
@@ -14,6 +16,9 @@
                     </div>
 
                     <!-- Post Content -->
+                    @if($post->text)
+                        <p class="mb-4 text-gray-800">{{ $post->text }}</p>
+                    @endif
                     <p class="mb-4 text-gray-800">{{ $post->content }}</p>
 
                     <!-- Post Media -->
