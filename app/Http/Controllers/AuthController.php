@@ -28,7 +28,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role_id' => 2,
-            'profile_photo_path' => 'profile-photos/default.jpg'
+            'profile_photo_path' => 'default/default.jpg'
         ]);
 
         event(new Registered($user));

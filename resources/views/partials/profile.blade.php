@@ -17,10 +17,27 @@
 
                     <!-- Post Image -->
                     @if ($post->image)
+                        @php
+                            $mediaPath = storage_path('app/public/' . $post->image);
+                            $extension = pathinfo($mediaPath, PATHINFO_EXTENSION);
+                            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                            $videoExtensions = ['mp4', 'webm', 'ogg'];
+                        @endphp
+
                         <div class="w-full rounded-lg mb-3 overflow-hidden border border-gray-200">
-                            <img src="{{ asset('storage/' . $post->image) }}" alt="Post Image" class="w-full max-h-96 object-contain">
+                            @if (in_array(strtolower($extension), $imageExtensions))
+                                <img src="{{ asset('storage/' . $post->image) }}" alt="Post Image" class="w-full max-h-96 object-contain">
+                            @elseif (in_array(strtolower($extension), $videoExtensions))
+                                <video controls class="w-full max-h-96 object-contain">
+                                    <source src="{{ asset('storage/' . $post->image) }}" type="video/{{ $extension }}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            @else
+                                <p class="text-gray-500 text-sm">Unsupported media format.</p>
+                            @endif
                         </div>
                     @endif
+
 
                     <!-- Post Actions -->
                     <div class="flex justify-between text-gray-500 text-sm pt-3 border-t">

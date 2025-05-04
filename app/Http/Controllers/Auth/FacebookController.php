@@ -28,7 +28,9 @@ class FacebookController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'facebook_id'=> $user->id,
-                    'password' => encrypt('123456dummy')
+                    'password' => encrypt('123456dummy'),
+                    'role_id' => 2,
+                    'profile_photo_path' => 'default/default.jpg',
                 ]);
 
                 Auth::login($newUser);
